@@ -7,16 +7,39 @@ import justmc.event.world.WebResponseEvent;
 
 
 public final class Main {
+    static void println(String message) {
+        Player.ALL.sendMessage(message);
+    }
+
+    @EventHandler
+    static void onSwapHands(PlayerSwapHandItemsEvent event) {
+        calcSumArr(new int[]{1,2,3,4,5});
+    }
+
+    static int calcSumArr(int[] arr) {
+        int s = 0;
+        int i = 0;
+        int l = arr.length;
+        println("start");
+        while (i < l) {
+            println("in");
+            s += arr[i];
+            ++i;
+        }
+        println("end");
+        return s;
+    }
+    
 //    @EventHandler(id = "player_swap_hands")
-//    public static void arr() {
+//    public static void arr() { // наверное работает
 //        var list = CopyableList.of(1, 2, 3, 4);
-//        Player.DEFAULT.sendMessage(Util.asString(list));
+//        Player.DEFAULT.sendMessage(Util.asString(list)); 
 //    }
 
-//    public static int counter = 0;
+//    public static int counter = 0; // наверное работает
 //
 //    @EventHandler
-//    public static void onLeftClick(PlayerLeftClickEvent event) {
+//    public static void onLeftClick(PlayerLeftClickEvent event) { // наверное работает
 //        if (event.hasBlock()) {
 //            event.getPlayer().sendMessage("has block");
 //        } else if (!event.hasBlock()) {
@@ -38,7 +61,7 @@ public final class Main {
 //        a += 3;
 //    }
 
-//    static void branches(int a) {
+//    static void branches(int a) { // вроде работает
 //        println("start");
 //        if (a < 5) {
 //            println("a < 5");
@@ -63,7 +86,7 @@ public final class Main {
 //        println("pre anyway");
 //        if (i < 2) {
 //            println("i < 2");
-//        } else if (i > 4 && i < 7) {
+//        } else if (i > 4 && i < 7) { // не работает
 //            println("i > 4 && i < 7");
 //        } else if (i < 9) {
 //            println("i < 9");
@@ -73,7 +96,7 @@ public final class Main {
 //        println("anyway");
 //    }
 
-//    static void cycle() {
+//    static void cycle() { // наверное работает
 //        int i = 0;
 //        println("start");
 //        while (i < 10) {
@@ -93,7 +116,7 @@ public final class Main {
 //        println("end");
 //    }
 
-//    void label() {
+//    void label() { // не работает
 //        boolean t = true;
 //        first:
 //        {
@@ -103,7 +126,7 @@ public final class Main {
 //                {
 //                    System.out.println("before break");
 //                    if (t) {
-//                        break second; // выход из блока second
+//                        break second; // выход из блока second (не работает)
 //                    }
 //                    System.out.println("unreachable 1");
 //                }
@@ -113,7 +136,7 @@ public final class Main {
 //        }
 //    }
 //
-    // INVOKEDYNAMIC только для 2 конструкций: лямбды и конкатенация
+    // INVOKEDYNAMIC только для 2 конструкций: лямбды и конкатенация (не работает)
 //    void runnable() {
 //        Util.measureNanoTime(() -> {
 //            int a = 1;
@@ -122,7 +145,7 @@ public final class Main {
 //    }
 //
 //    static long methodWithParams(int i, Object o, long l) {
-//        // GC.
+//        // GC. (его пока нет)
 //        long r = i + l;
 //        String s = o.toString();
 //        return r;
@@ -134,7 +157,7 @@ public final class Main {
 //        long bebra = methodWithParams(1, obj, 3);
 //        // refs--
 //    }
-
+    
 //    static void tempVar() {
 //        //finalMethod();
 //        Variable t = Variable.temp();
@@ -150,31 +173,7 @@ public final class Main {
     ////        }
 //    }
 //
-
-    static void println(String message) {
-        Player.ALL.sendMessage(message);
-    }
-
-    @EventHandler
-    static void onSwapHands(PlayerSwapHandItemsEvent event) {
-        calcSumArr(new int[]{1,2,3,4,5});
-    }
-
-    static int calcSumArr(int[] arr) {
-        int s = 0;
-        int i = 0;
-        int l = arr.length;
-        println("start");
-        while (i < l) {
-            println("in");
-            s += arr[i];
-            ++i;
-        }
-        println("end");
-        return s;
-    }
-
-//    static void tryCatch() {
+//    static void tryCatch() { // не работает
 //        try {
 //            System.out.println("try");
 //        } catch (Exception e) {
