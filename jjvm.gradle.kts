@@ -1,8 +1,7 @@
 val jvmVersion = property("justmc.jvm.version").toString()
-val jdkVersion = property("justmc.jdk.version").toString()
 
 dependencies {
-    add("compileOnly", files("jjvm/justmc-jdk-$jdkVersion.jar"))
+    add("compileOnly", files("jjvm/justmc-jdk-$jvmVersion.jar"))
 }
 
 tasks.named("jar", Jar::class.java) {
@@ -38,8 +37,8 @@ tasks.register("downloadJars") {
     doLast {
         project.file("jjvm").mkdirs()
         listOf(
-            "https://github.com/unidok/JMC-Codespace/releases/download/1.5/JMC-Codespace-1.5.jar",
-            "https://github.com/unidok/JMC-Codespace/releases/download/1.4/JMC-Codespace-1.4.jar"
+            "https://github.com/unidok/justmc-jvm/releases/download/jjvm-$jvmVersion/justmc-jvm-$jvmVersion.jar",
+            "https://github.com/unidok/justmc-jvm/releases/download/jjvm-$jvmVersion/justmc-jdk-$jvmVersion.jar"
         ).forEach { url ->
             val fileName = url.substringAfterLast("/")
             val outputFile = project.file("jjvm/$fileName")
