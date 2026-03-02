@@ -1,5 +1,5 @@
 # JustMC JVM
-JustMC JVM (*далее - JJVM*) - Транслятор байт-кода JVM в блочный код [JustMC](https://justwiki.gitbook.io/wiki/creative/about).\
+JustMC JVM (*далее - JJVM*) - Транслятор байт-кода JVM в блочный код [JustMC](https://justwiki.gitbook.io/wiki/creative/about).
 
 ### Как это работает
 пока очень хреново
@@ -12,9 +12,14 @@ JustMC JVM (*далее - JJVM*) - Транслятор байт-кода JVM в
 ```kt
 apply("https://raw.githubusercontent.com/unidok/justmc-jvm/refs/heads/master/jjvm.gradle.kts")
 ```
-Должно получиться как в [justmc-jvm-test/build.gradle.kts].
-3. Перезагружаем Gradle (должна появиться кнопочка справа сверху)
-4. Можно начинать работу, но скачала запустите таск justmc/downloadJars
+Должно получиться как в [justmc-jvm-test/build.gradle.kts](justmc-jvm-test/build.gradle.kts).
+3. В файл `gradle.properties` добавляем значение:
+```properties
+justmc.jvm.version=1.0
+```
+4. Перезагружаем Gradle (должна появиться кнопочка справа сверху)
+5. Запускаем таск downloadJars (из группы justmc)
+6. Можно начинать работу
 ### Настройка
 После установки у вас должно появиться 3 новых таска gradle в группе justmc: 
 - `buildModule` - сборка модуля в json-файл 
@@ -59,5 +64,5 @@ long NEW(String clazz) {
 Выходит, что любой полезный код надо будет писать в интеропе с JJDK, то есть специально под JustMC.
 
 ### Разработка
-Проект находится в разработке. Могут быть баги, сильные баги, ужасные баги и т.п. На данный момент есть работа с примитивами джавы, вечный цикл, условия (даже с иначе), вывод сообщения игроку, некоторые события. Примеры кода можно найти в модуле [justmc-jvm-test/src/main]
+Проект находится в разработке. Могут быть баги, сильные баги, ужасные баги и т.п. На данный момент есть работа с примитивами джавы, вечный цикл, условия (даже с иначе), вывод сообщения игроку, некоторые события. Примеры кода можно найти в модуле [justmc-jvm-test](justmc-jvm-test/src/main)
 
