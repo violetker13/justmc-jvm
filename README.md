@@ -13,7 +13,7 @@ JustMC JVM (*далее - JJVM*) - Транслятор байт-кода JVM в
 ```kts
 apply("https://raw.githubusercontent.com/unidok/justmc-jvm/refs/heads/master/jjvm.gradle.kts")
 ```
-3. В файл `gradle.properties` добавляем значение:
+3. В файл `gradle.properties` добавляем значения:
 ```properties
 justmc.jvm.version=1.0
 justmc.jdk.version=1.0
