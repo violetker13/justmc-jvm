@@ -9,8 +9,8 @@ JustMC JVM (*далее - JJVM*) - Транслятор байт-кода JVM в
 
 ### Установка
 1. Создаём проект на Java или Kotlin, выбрав Gradle и Kotlin DSL.
-2. В файл `build.gradle.kts` добавляем следующее: (Должно получиться как в [justmc-jvm-test/build.gradle.kts](justmc-jvm-test/build.gradle.kts))
-```kt
+2. В файл `build.gradle.kts` добавляем следующее:
+```kts
 apply("https://raw.githubusercontent.com/unidok/justmc-jvm/refs/heads/master/jjvm.gradle.kts")
 ```
 3. В файл `gradle.properties` добавляем значение:
