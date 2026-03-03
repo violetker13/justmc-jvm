@@ -16,6 +16,7 @@ apply("https://raw.githubusercontent.com/unidok/justmc-jvm/refs/heads/master/jjv
 3. В файл `gradle.properties` добавляем значение:
 ```properties
 justmc.jvm.version=1.0
+justmc.jdk.version=1.0
 ```
 4. Перезагружаем Gradle (должна появиться кнопочка справа сверху)
 5. Запускаем таск `downloadJars` (из группы justmc)
