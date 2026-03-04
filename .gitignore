@@ -44,3 +44,4 @@ bin/
 ### Mac OS ###
 .DS_Store
 /justmc-jvm-test/jjvm/
+/justmc-jvm-test/libs/

@@ -1,8 +1,8 @@
 package justmc;
 
-import justmc.annotation.PrimitiveType;
+import justmc.annotation.Inline;
 
-@PrimitiveType
-public final class Block {
+@Inline
+public final class Block implements Primitive {
     public static native Block of(String id);
 }

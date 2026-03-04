@@ -1,14 +1,21 @@
 package justmc;
 
-import justmc.annotation.PrimitiveTemplate;
-import justmc.annotation.PrimitiveType;
+import justmc.annotation.Inline;
 
-@PrimitiveType
-public final class MutableList<@PrimitiveTemplate E> {
-    public MutableList() {}
-    public MutableList(CopyableList<E> list) {}
+@Inline
+public final class MutableList<E extends Primitive> {
+    public MutableList() {
+        Unsafe.operation("set_variable_create_list", CopyableMap.of(
+                Pair.of("variable", Unsafe.pointerTo(this))
+        ));
+    }
 
-    public native CopyableList<E> dereference();
+    public MutableList(CopyableList<E> list) {
+        Unsafe.operation("set_variable_create_list", CopyableMap.of(
+                Pair.of("variable", Unsafe.pointerTo(this)),
+                Pair.of("values", list)
+        ));
+    }
 
     public native int size();
 
@@ -40,7 +47,7 @@ public final class MutableList<@PrimitiveTemplate E> {
 
     public native void reverse();
 
-    public native void toSet();
+    public native void distinct();
 
     public native CopyableList<E> subList(int begin, int end);
 

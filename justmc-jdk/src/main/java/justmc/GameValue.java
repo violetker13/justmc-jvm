@@ -1,8 +1,8 @@
 package justmc;
 
-import justmc.annotation.PrimitiveType;
+import justmc.annotation.Inline;
 
-@PrimitiveType
+@Inline
 public enum GameValue {
     CURRENT,
     DEFAULT,
@@ -16,6 +16,7 @@ public enum GameValue {
 
     public static native GameValue ofPlayer(Player player);
     public static native GameValue ofEntity(Entity entity);
-    public static native Object get(String id);
-    public native Object getValue(String id);
+    public static native Primitive get(String id);
+
+    public native Primitive getValue(String id);
 }

@@ -7,38 +7,40 @@ import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.util.NativeMethod
 import me.unidok.jjvm.util.NativeMethodContext
 import me.unidok.jjvm.util.Translator
+import me.unidok.justcode.value.NumberValue
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.*
 
-class MethodWalker(
-    val source: SourceContext
+class BytecodeTranslator(
+    val methodContext: MethodContext,
+    val bytecode: Iterator<AbstractInsnNode>
 ) {
-    private var inst: AbstractInsnNode? = source.method.instructions.first
-
     fun getLabelIndex(label: Label): Int {
-        return source.labelsIndexes[label] ?: -1
+        return methodContext.labelsIndexes[label] ?: -1
     }
 
     fun getGotoIndex(label: Label): Int {
-        return source.gotosIndexes[label] ?: -1
+        return methodContext.gotosIndexes[label] ?: -1
     }
 
     fun isCycle(label: Label): Boolean {
-        val labelIndex = source.labelsIndexes[label] ?: return false
-        val gotoIndex = source.gotosIndexes[label] ?: return false
+        val labelIndex = methodContext.labelsIndexes[label] ?: return false
+        val gotoIndex = methodContext.gotosIndexes[label] ?: return false
         return labelIndex < gotoIndex
     }
 
-    fun walk(
+    fun translate(
         destination: MutableList<Operation>,
         end: Label? = null
     ): Label? {
-        val stack = source.stack
-        while (true) {
-            val inst = inst ?: break
-            this.inst = inst.next
+        val methodContext = methodContext
+        val source = methodContext.source
+        val stack = methodContext.stack
+        val iterator = bytecode
+        while (iterator.hasNext()) {
+            val inst = iterator.next()
             when (val opcode = inst.opcode) {
                 -1 -> when (inst.type) {
                     AbstractInsnNode.LABEL -> {
@@ -46,11 +48,11 @@ class MethodWalker(
                         if (label === end) return null
                         if (isCycle(label)) {
                             val loopOperations = ArrayList<Operation>()
-                            walk(loopOperations, label)
+                            translate(loopOperations, label)
                             destination.add(LoopBranch(loopOperations))
                         }
                     }
-                    AbstractInsnNode.LINE -> {
+                    AbstractInsnNode.LINE -> if (source.config.sourceLineNumbers) {
                         val lineNumber = (inst as LineNumberNode).line
                         if (lineNumber != -1) {
                             destination.add(NonAffectOperation(
@@ -75,7 +77,9 @@ class MethodWalker(
                 IALOAD, LALOAD, FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD -> {
                     val index = stack.removeFirst()
                     val array = stack.removeFirst()
-                    stack.addFirst(OperandResult(LoadFromArray(array, index)))
+                    val operation = LoadFromArray(array, index)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 ISTORE, LSTORE, FSTORE, DSTORE, ASTORE -> {
                     val value = stack.removeFirst()
@@ -115,65 +119,91 @@ class MethodWalker(
                 IADD, LADD, FADD, DADD -> {
                     val second = stack.removeFirst()
                     val first = stack.removeFirst()
-                    stack.addFirst(OperandResult(PluralOperator(PluralOperator.Type.ADD, first, second)))
+                    val operation = PluralOperator(PluralOperator.Type.ADD, first, second)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 ISUB, LSUB, FSUB, DSUB -> {
                     val second = stack.removeFirst()
                     val first = stack.removeFirst()
-                    stack.addFirst(OperandResult(PluralOperator(PluralOperator.Type.SUB, first, second)))
+                    val operation = PluralOperator(PluralOperator.Type.SUB, first, second)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 IMUL, LMUL, FMUL, DMUL -> {
                     val second = stack.removeFirst()
                     val first = stack.removeFirst()
-                    stack.addFirst(OperandResult(PluralOperator(PluralOperator.Type.MUL, first, second)))
+                    val operation = PluralOperator(PluralOperator.Type.MUL, first, second)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 IDIV, LDIV -> {
                     val second = stack.removeFirst()
                     val first = stack.removeFirst()
-                    stack.addFirst(OperandResult(PluralOperator(PluralOperator.Type.IDIV, first, second)))
+                    val operation = PluralOperator(PluralOperator.Type.IDIV, first, second)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 FDIV, DDIV -> {
                     val second = stack.removeFirst()
                     val first = stack.removeFirst()
-                    stack.addFirst(OperandResult(PluralOperator(PluralOperator.Type.FDIV, first, second)))
+                    val operation = PluralOperator(PluralOperator.Type.FDIV, first, second)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 IREM, LREM, FREM, DREM -> {
                     val second = stack.removeFirst()
                     val first = stack.removeFirst()
-                    stack.addFirst(OperandResult(BinaryOperator(BinaryOperator.Type.REM, first, second)))
+                    val operation = BinaryOperator(BinaryOperator.Type.REM, first, second)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 INEG, LNEG, FNEG, DNEG -> {
-                    stack.addFirst(OperandResult(UnaryOperator(UnaryOperator.Type.NEG, stack.removeFirst())))
+                    val operation = UnaryOperator(UnaryOperator.Type.NEG, stack.removeFirst())
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 ISHL, LSHL -> {
                     val second = stack.removeFirst()
                     val first = stack.removeFirst()
-                    stack.addFirst(OperandResult(BinaryOperator(BinaryOperator.Type.SHL, first, second)))
+                    val operation = BinaryOperator(BinaryOperator.Type.SHL, first, second)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 ISHR, LSHR -> {
                     val second = stack.removeFirst()
                     val first = stack.removeFirst()
-                    stack.addFirst(OperandResult(BinaryOperator(BinaryOperator.Type.SHR, first, second)))
+                    val operation = BinaryOperator(BinaryOperator.Type.SHR, first, second)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 IUSHR, LUSHR -> {
                     val second = stack.removeFirst()
                     val first = stack.removeFirst()
-                    stack.addFirst(OperandResult(BinaryOperator(BinaryOperator.Type.USHR, first, second)))
+                    val operation = BinaryOperator(BinaryOperator.Type.USHR, first, second)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 IAND, LAND -> {
                     val second = stack.removeFirst()
                     val first = stack.removeFirst()
-                    stack.addFirst(OperandResult(BinaryOperator(BinaryOperator.Type.AND, first, second)))
+                    val operation = BinaryOperator(BinaryOperator.Type.AND, first, second)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 IOR, LOR -> {
                     val second = stack.removeFirst()
                     val first = stack.removeFirst()
-                    stack.addFirst(OperandResult(BinaryOperator(BinaryOperator.Type.OR, first, second)))
+                    val operation = BinaryOperator(BinaryOperator.Type.OR, first, second)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 IXOR, LXOR -> {
                     val second = stack.removeFirst()
                     val first = stack.removeFirst()
-                    stack.addFirst(OperandResult(BinaryOperator(BinaryOperator.Type.XOR, first, second)))
+                    val operation = BinaryOperator(BinaryOperator.Type.XOR, first, second)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 IINC -> {
                     val inst = inst as IincInsnNode
@@ -188,7 +218,9 @@ class MethodWalker(
                         I2C -> type = UnaryOperator.Type.I2C
                         I2S -> type = UnaryOperator.Type.I2S
                     }
-                    stack.addFirst(OperandResult(UnaryOperator(type!!, stack.removeFirst())))
+                    val operation = UnaryOperator(type!!, stack.removeFirst())
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT,
                 IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ, IF_ACMPNE, IFNULL, IFNONNULL -> {
@@ -276,9 +308,9 @@ class MethodWalker(
                     }
 
                     val ifOperations = ArrayList<Operation>()
-                    val endElse = walk(ifOperations, endIf)
+                    val endElse = translate(ifOperations, endIf)
                     val elseOperations = if (endElse == null) null else buildList<Operation> {
-                        val end = walk(this, endElse)
+                        val end = translate(this, endElse)
                         if (end != null) return end
                     }
                     destination.add(IfBranch(
@@ -294,24 +326,28 @@ class MethodWalker(
                     if (isCycle(label)) return label
                     if (end === label) return null
                 }
-                IRETURN, LRETURN, FRETURN, DRETURN, ARETURN -> {
-                    destination.add(ReturnValue(stack.removeFirst()))
-                }
-                RETURN -> {
-                    destination.add(Return)
+                RETURN, IRETURN, LRETURN, FRETURN, DRETURN, ARETURN -> {
+                    if (opcode != RETURN) destination.add(TranslatableFutureOperation {
+                        Translator.setVariable(this, Translator.RETURN_VARIABLE, stack.removeFirst())
+                    })
+                    if (inst !== methodContext.method.instructions.last) {
+                        destination.add(NonAffectOperation(Translator.returnMethod(methodContext)))
+                    }
                 }
                 GETSTATIC -> {
                     val inst = inst as FieldInsnNode
                     val owner = inst.owner
                     val name = inst.name
-                    stack.addFirst(NativeClasses.getField(owner, name) ?: GetStatic(owner, name))
+                    stack.addFirst(NativeClasses.findField(owner, name) ?: GetStatic(owner, name))
                 }
                 PUTSTATIC -> {
                     val inst = inst as FieldInsnNode
                     destination.add(PutStatic(inst.owner, inst.name, stack.removeFirst()))
                 }
                 GETFIELD -> {
-                    stack.addFirst(OperandResult(GetField(stack.removeFirst(), (inst as FieldInsnNode).name)))
+                    val operation = GetField(stack.removeFirst(), (inst as FieldInsnNode).name)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 PUTFIELD -> {
                     val value = stack.removeFirst()
@@ -320,7 +356,6 @@ class MethodWalker(
                 }
                 INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC, INVOKEINTERFACE -> {
                     val inst = inst as MethodInsnNode
-                    val owner = inst.owner
                     val name = inst.name
                     val desc = inst.desc
                     var local = Type.getArgumentCount(desc)
@@ -330,19 +365,32 @@ class MethodWalker(
                         args[local] = stack.removeFirst()
                     }
                     var self: Operand? = null
+                    val owner: String
                     if (opcode == INVOKEVIRTUAL || opcode == INVOKEINTERFACE) {
                         self = stack.removeFirst()
+                        owner = methodContext.resolveType(self)?.internalName ?: inst.owner
+                    } else {
+                        owner = inst.owner
                     }
                     @Suppress("UNCHECKED_CAST")
-                    val invokeMethod = InvokeMethod(owner, name, desc, self, args as Array<out Operand>)
-                    val nativeMethod: NativeMethod? = NativeClasses.getMethod(owner, name, desc)
-                    val nativeMethodContext = NativeMethodContext(invokeMethod, source, destination)
-                    if (Type.getReturnType(desc) != Type.VOID_TYPE) {
-                        stack.addFirst(nativeMethod?.invoke(nativeMethodContext) ?: OperandResult(invokeMethod))
+                    val invokeMethod = InvokeMethod(
+                        owner, name, desc,
+                        source.isFinalClass(owner),
+                        self, args as Array<out Operand>
+                    )
+                    val nativeMethod: NativeMethod? = NativeClasses.findMethod(owner, name, desc)
+                    if (nativeMethod != null) {
+                        val nativeMethodContext = NativeMethodContext(invokeMethod, methodContext, destination)
+                        val nativeMethodResult = nativeMethod.invoke(nativeMethodContext)
+                        if (nativeMethodResult != null) {
+                            stack.addFirst(nativeMethodResult)
+                        } else {
+                            destination.add(GetOperationResult(invokeMethod))
+                            val result = OperandResult(invokeMethod)
+                            methodContext.resolvedTypes[result] = Type.getReturnType(desc)
+                            stack.addFirst(result)
+                        }
                     } else {
-                        nativeMethod?.invoke(nativeMethodContext)
-                    }
-                    if (nativeMethod == null) {
                         destination.add(invokeMethod)
                     }
                 }
@@ -354,13 +402,19 @@ class MethodWalker(
                     inst.bsmArgs
                 }
                 NEW -> {
-                    stack.addFirst(OperandResult(New((inst as TypeInsnNode).desc)))
+                    val operation = New((inst as TypeInsnNode).desc)
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 NEWARRAY, ANEWARRAY -> {
-                    stack.addFirst(OperandResult(NewArray(stack.removeFirst())))
+                    val operation = NewArray(stack.removeFirst())
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 ARRAYLENGTH -> {
-                    stack.addFirst(OperandResult(ArrayLength(stack.removeFirst())))
+                    val operation = ArrayLength(stack.removeFirst())
+                    destination.add(GetOperationResult(operation))
+                    stack.addFirst(OperandResult(operation))
                 }
                 ATHROW -> {
                 }

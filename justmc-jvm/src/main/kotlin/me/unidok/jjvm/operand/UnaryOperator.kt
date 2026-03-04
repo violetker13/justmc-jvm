@@ -1,7 +1,7 @@
 package me.unidok.jjvm.operand
 
-import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.TranslationContext
+import me.unidok.jjvm.util.JustOperation
 import me.unidok.justcode.value.ArrayValue
 import me.unidok.justcode.value.EnumValue
 import me.unidok.justcode.value.Value

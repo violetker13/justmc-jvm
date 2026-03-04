@@ -1,19 +1,33 @@
 package justmc;
 
-import justmc.annotation.Destructure;
-import justmc.annotation.PrimitiveTemplate;
-import justmc.annotation.PrimitiveType;
+import justmc.annotation.Inline;
 
-@PrimitiveType
-public final class CopyableList<@PrimitiveTemplate E> {
+@Inline
+public final class CopyableList<E extends Primitive> implements Primitive {
     public static final int MAX_SIZE = 20000;
 
     private CopyableList() {}
 
+    public static native <E extends Primitive> CopyableList<E> empty();
+    public static native CopyableList<NumberPrimitive> of(boolean[] arr);
+    public static native CopyableList<NumberPrimitive> of(byte[] arr);
+    public static native CopyableList<NumberPrimitive> of(char[] arr);
+    public static native CopyableList<NumberPrimitive> of(short[] arr);
+    public static native CopyableList<NumberPrimitive> of(int[] arr);
+    public static native CopyableList<NumberPrimitive> of(long[] arr);
+    public static native CopyableList<NumberPrimitive> of(float[] arr);
+    public static native CopyableList<NumberPrimitive> of(double[] arr);
     @SafeVarargs
-    public static native <E> CopyableList<E> of(E... values);
+    public static native <E extends Primitive> CopyableList<E> of(E... values);
 
-    public native int size();
+    public int size() {
+        var result = Variable.temp();
+        Unsafe.operation("set_variable_list_get_size", CopyableMap.of(
+                Pair.of("variable", result),
+                Pair.of("list", this)
+        ));
+        return Unsafe.asInt(result);
+    }
 
     public native E get(int index);
 
@@ -37,7 +51,7 @@ public final class CopyableList<@PrimitiveTemplate E> {
 
     public native CopyableList<E> removeAll(E value);
 
-    public native @Destructure Pair<E, CopyableList<E>> removeAt(int index);
+    public native Pair<E, CopyableList<E>> removeAt(int index);
 
     public native CopyableList<E> shuffled();
 

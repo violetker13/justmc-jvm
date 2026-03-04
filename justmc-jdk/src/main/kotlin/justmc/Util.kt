@@ -2,10 +2,14 @@
 
 package justmc
 
-inline fun vector(x: Double, y: Double, z: Double): Vector = Vector.of(x, y, z)
-inline fun location(x: Double, y: Double, z: Double): Location = Location.of(x, y, z)
-inline fun location(x: Double, y: Double, z: Double, yaw: Double, pitch: Double): Location = Location.of(x, y, z, yaw, pitch)
+import justmc.enums.BooleanEnum
 
-inline infix fun <A, B> A.to(other: B): Pair<A, B> = Pair.of(this, other)
-inline operator fun <A, B> Pair<A, B>.component1(): A = this.first
-inline operator fun <A, B> Pair<A, B>.component2(): B = this.second
+fun vector(x: Double, y: Double, z: Double): Vector = Vector.of(x, y, z)
+fun location(x: Double, y: Double, z: Double): Location = Location.of(x, y, z)
+fun location(x: Double, y: Double, z: Double, yaw: Float, pitch: Float): Location = Location.of(x, y, z, yaw, pitch)
+
+infix fun <A : Primitive, B : Primitive> A.to(other: B): Pair<A, B> = Pair.of(this, other)
+operator fun <A : Primitive> Pair<A, *>.component1(): A = this.first
+operator fun <B : Primitive> Pair<*, B>.component2(): B = this.second
+
+fun Boolean.toEnum(): BooleanEnum = BooleanEnum.of(this)

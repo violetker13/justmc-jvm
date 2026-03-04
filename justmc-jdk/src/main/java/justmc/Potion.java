@@ -1,7 +1,7 @@
 package justmc;
 
-import justmc.annotation.PrimitiveType;
+import justmc.annotation.Inline;
 
-@PrimitiveType
-public final class Potion {
+@Inline
+public final class Potion implements Primitive {
 }

@@ -1,7 +1,7 @@
 package me.unidok.jjvm.operation
 
-import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.TranslationContext
+import me.unidok.jjvm.util.JustOperation
 
 class NonAffectOperation(
     @JvmField val operation: JustOperation

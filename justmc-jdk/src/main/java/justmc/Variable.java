@@ -1,9 +1,10 @@
 package justmc;
 
-import justmc.annotation.PrimitiveType;
+import justmc.annotation.Inline;
+import justmc.enums.VariableScope;
 
-@PrimitiveType
-public final class Variable {
+@Inline
+public final class Variable implements Primitive {
     private Variable() {}
 
     public static final int MAX_SAVE_VARIABLES = 800000;
@@ -18,5 +19,20 @@ public final class Variable {
     public static native Variable temp();
     public static native Variable free(Variable variable);
 
-    public native void set(Object value);
+    public native String getName();
+    public native VariableScope getScope();
+
+    public void set(Primitive value) {
+        Unsafe.operation("set_variable_value", CopyableMap.of(
+                Pair.of("variable", this),
+                Pair.of("value", value)
+        ));
+    }
+
+    public void remove() {
+        Unsafe.operation("set_variable_purge", CopyableMap.of(
+                Pair.of("names", Text.plain(getName())),
+                Pair.of("scope", getScope())
+        ));
+    }
 }

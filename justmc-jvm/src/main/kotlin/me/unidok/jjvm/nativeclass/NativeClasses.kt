@@ -11,23 +11,16 @@ object NativeClasses {
     fun register() {
         JavaClasses.register()
         KotlinIntrinsics.register()
-        MathClass.register()
-        VariableClass.register()
-        LocationClass.register()
-        PlayerClass.register()
-        EntityClass.register()
-        GameValueClass.register()
-        WorldClass.register()
+        PrimitiveClasses.register()
         UtilClass.register()
-        EventClasses.register()
-        CopyableListClass.register()
+        UnsafeClass.register()
     }
 
     fun registerMethods(owner: String, methods: MethodsMap) {
         this.methods.put(owner, methods)
     }
 
-    fun getMethod(owner: String, name: String, desc: String): NativeMethod? {
+    fun findMethod(owner: String, name: String, desc: String): NativeMethod? {
         return methods[owner]?.get(name + desc)
     }
 
@@ -35,7 +28,7 @@ object NativeClasses {
         this.fields.put(owner, fields)
     }
 
-    fun getField(owner: String, name: String): Operand? {
+    fun findField(owner: String, name: String): Operand? {
         return fields[owner]?.get(name)
     }
 }

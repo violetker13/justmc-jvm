@@ -1,12 +1,8 @@
 package me.unidok.jjvm.operand
 
-import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.TranslationContext
-import me.unidok.justcode.value.ArrayValue
-import me.unidok.justcode.value.EnumValue
-import me.unidok.justcode.value.NumberValue
-import me.unidok.justcode.value.Value
-import me.unidok.justcode.value.Variable
+import me.unidok.jjvm.util.JustOperation
+import me.unidok.justcode.value.*
 
 class PluralOperator(
     @JvmField val type: Type,
@@ -21,10 +17,10 @@ class PluralOperator(
         val values = ArrayList<Value>()
         values.add(simpleOperand.translate(context, null))
         val type = type
-        var deepOperand = (deepOperand as? OperandResult)?.summary
+        var deepOperand = (deepOperand as? OperandResult)?.operand
         while (deepOperand is PluralOperator && deepOperand.type == type) {
             values.add(deepOperand.simpleOperand.translate(context, null))
-            deepOperand = (deepOperand.deepOperand as? OperandResult)?.summary
+            deepOperand = (deepOperand.deepOperand as? OperandResult)?.operand
         }
         val variable = variable ?: context.tempVar()
         if (deepOperand == null) {

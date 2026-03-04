@@ -1,7 +1,9 @@
 package justmc;
 
+import justmc.annotation.Inline;
 import justmc.enums.NoiseRangeMode;
 
+@Inline
 public final class Math {
     private Math() {}
 
@@ -11,7 +13,15 @@ public final class Math {
     public static final double DEGREES_TO_RADIANS = PI / 180.0;
     public static final double RADIANS_TO_DEGREES = 180.0 / PI;
 
-    public static native double pow(double x, double power);
+    public static double pow(double x, double power) {
+        var result = Variable.temp();
+        Unsafe.operation("set_variable_power", CopyableMap.of(
+                Pair.of("number", NumberPrimitive.of(x)),
+                Pair.of("power", NumberPrimitive.of(power))
+        ));
+        return Unsafe.asDouble(result);
+    }
+
     public static native double square(double x);
 
     public static native double root(double x, double power);

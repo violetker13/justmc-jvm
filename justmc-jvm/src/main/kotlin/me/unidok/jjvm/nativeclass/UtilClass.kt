@@ -1,17 +1,18 @@
 package me.unidok.jjvm.nativeclass
 
-import me.unidok.jjvm.nativeclass.NativeClasses
+import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.util.NativeMethod
+import me.unidok.jjvm.util.requireConstString
 
 object UtilClass {
     fun register() {
         val nothingToDo: NativeMethod = { arg(0) }
         NativeClasses.registerMethods("justmc/Util", hashMapOf(
-//            "operation(Ljava/lang/String;)V" to {
-//                val id = args[0].translate(it, null).toString()
-//                it.addOperation(JustOperation(id))
-//                null
-//            },
+            "operation(Ljava/lang/String;[Ljustmc/Primitive;)V" to {
+                val id = arg(0).requireConstString("Operation id must be const string")
+                addOperation(JustOperation(id))
+                null
+            },
             "asByte(Ljava/lang/Object;)B" to nothingToDo,
             "asShort(Ljava/lang/Object;)S" to nothingToDo,
             "asChar(Ljava/lang/Object;)C" to nothingToDo,
@@ -29,14 +30,6 @@ object UtilClass {
             "asMutableCopyableList(Ljava/lang/Object;)Ljustmc/MutableCopyableList;" to nothingToDo,
             "asCopyableMap(Ljava/lang/Object;)Ljustmc/CopyableMap;" to nothingToDo,
             "asMutableCopyableMap(Ljava/lang/Object;)Ljustmc/MutableCopyableMap;" to nothingToDo,
-//            "delete(Ljava/lang/Object;)V" to {
-//                it.addOperation(JustOperation(
-//                    "set_variable_purge", mapOf(
-//                        "names" to args[0].translate(it, null)
-//                    )
-//                ))
-//                null
-//            }
         ))
     }
 }

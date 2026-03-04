@@ -1,10 +1,9 @@
 package justmc;
 
-import justmc.annotation.PrimitiveTemplate;
-import justmc.annotation.PrimitiveType;
+import justmc.annotation.Inline;
 
-@PrimitiveType
-public final class MutableMap<@PrimitiveTemplate K, @PrimitiveTemplate V> {
+@Inline
+public final class MutableMap<K extends Primitive, V extends Primitive> {
     public MutableMap() {}
     public MutableMap(CopyableMap<K, V> map) {}
 

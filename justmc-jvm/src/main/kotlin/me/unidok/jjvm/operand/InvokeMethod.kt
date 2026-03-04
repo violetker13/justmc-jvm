@@ -1,14 +1,10 @@
 package me.unidok.jjvm.operand
 
-import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.TranslationContext
-import me.unidok.jjvm.util.Translator
 import me.unidok.jjvm.operation.Operation
-import me.unidok.justcode.value.EmptyValue
-import me.unidok.justcode.value.MapValue
-import me.unidok.justcode.value.TextValue
-import me.unidok.justcode.value.Value
-import me.unidok.justcode.value.Variable
+import me.unidok.jjvm.util.JustOperation
+import me.unidok.jjvm.util.Translator
+import me.unidok.justcode.value.*
 import org.objectweb.asm.Type
 
 /*
@@ -27,6 +23,7 @@ class InvokeMethod(
     @JvmField val owner: String,
     @JvmField val name: String,
     @JvmField val desc: String,
+    @JvmField val devirtualized: Boolean,
     @JvmField val self: Operand?,
     @JvmField val args: Array<out Operand>
 ) : SummaryOperand, Operation {
@@ -35,7 +32,7 @@ class InvokeMethod(
         val functionName: Value
         val args = args
         val self = self?.translate(context, null)
-        if (self != null) {
+        if (self != null && !devirtualized) {
             functionName = context.tempVar()
             context.addOperation(
                 JustOperation(

@@ -2,10 +2,10 @@ package justmc.event;
 
 import justmc.GameValue;
 import justmc.Item;
-import justmc.Util;
+import justmc.Unsafe;
 
 public interface ItemEvent {
     default Item getItem() {
-        return Util.asItem(GameValue.get("event_item"));
+        return Unsafe.asItem(GameValue.get("event_item"));
     }
 }

@@ -1,16 +1,15 @@
 package me.unidok.jjvm.operation
 
-import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.TranslationContext
-import me.unidok.jjvm.util.Translator
-import me.unidok.justcode.value.NumberValue
+import me.unidok.jjvm.operand.DynamicConstant
+import me.unidok.jjvm.util.JustOperation
 
 class Increment(
     @JvmField val local: Int,
     @JvmField val value: Int
 ) : Operation {
     override fun translate(context: TranslationContext) {
-        val variable = Translator.local(local)
+        val variable = context.localVar(local)
         val value = value
         context.addOperation(when {
             value == 1 -> JustOperation(
@@ -26,13 +25,13 @@ class Increment(
             value >= 0 -> JustOperation(
                 "set_variable_increment", mapOf(
                     "variable" to variable,
-                    "value" to NumberValue(value.toDouble())
+                    "number" to DynamicConstant.valueOf(value).value
                 )
             )
             else -> JustOperation(
                 "set_variable_decrement", mapOf(
                     "variable" to variable,
-                    "value" to NumberValue(value.toDouble())
+                    "number" to DynamicConstant.valueOf(value).value
                 )
             )
         })

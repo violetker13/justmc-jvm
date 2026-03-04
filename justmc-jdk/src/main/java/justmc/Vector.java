@@ -1,9 +1,9 @@
 package justmc;
 
-import justmc.annotation.PrimitiveType;
+import justmc.annotation.Inline;
 
-@PrimitiveType
-public final class Vector {
+@Inline
+public final class Vector implements Primitive {
     private Vector() {}
 
     public static native Vector of(double x, double y, double z);

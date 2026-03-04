@@ -31,21 +31,4 @@ data class GameValue(
         return if (selector == null) "%val($id)"
         else "%val($id,$selector)"
     }
-
-    companion object {
-        val TIMESTAMP = GameValue("timestamp")
-        val CPU_USAGE = GameValue("cpu_usage")
-        val EVENT_BLOCK_LOCATION = GameValue("event_block_location")
-        val EVENT_BLOCK = GameValue("event_block")
-        val EVENT_BLOCK_FACE = GameValue("event_block_face")
-        val EVENT_ITEM = GameValue("event_item")
-        val EVENT_CHAT_MESSAGE = GameValue("event_chat_message")
-        val EVENT_MESSAGE = GameValue("event_message")
-        val EVENT_EQUIPMENT_SLOT = GameValue("event_equipment_slot")
-        val EVENT_INTERACTION = GameValue("event_interaction")
-        val URL = GameValue("url")
-        val URL_RESPONSE = GameValue("url_response")
-        val URL_RESPONSE_CODE = GameValue("url_response_code")
-        val RESPONSE_HEADERS = GameValue("response_headers")
-    }
 }

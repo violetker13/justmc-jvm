@@ -4,17 +4,22 @@ plugins {
 }
 
 group = "me.unidok"
-version = "1.0"
+version = "2.0"
 
 repositories {
     mavenCentral()
 }
 
-dependencies {
+java {
+    withSourcesJar()
+}
+
+tasks.named<Jar>("sourcesJar") {
+    destinationDirectory.set(file("$rootDir/justmc-jvm-test/libs"))
 }
 
 tasks.jar {
-    destinationDirectory.set(file("$rootDir/justmc-jvm-test/jjvm"))
+    destinationDirectory.set(file("$rootDir/justmc-jvm-test/libs"))
 }
 
 tasks.register<Exec>("publishReleaseJDK") {

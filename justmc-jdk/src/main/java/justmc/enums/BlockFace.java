@@ -1,6 +1,8 @@
 package justmc.enums;
 
-public enum BlockFace {
+import justmc.Primitive;
+
+public enum BlockFace implements Primitive {
     NORTH,
     SOUTH,
     WEST,

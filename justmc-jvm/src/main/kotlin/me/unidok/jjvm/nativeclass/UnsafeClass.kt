@@ -1,6 +1,6 @@
 package me.unidok.jjvm.nativeclass
 
-object ConstEnumClasses {
+object UnsafeClass {
     fun register() {
 
     }

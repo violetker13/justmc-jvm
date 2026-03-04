@@ -1,10 +1,11 @@
 package justmc.event.player;
 
-import justmc.event.*;
+import justmc.annotation.Event;
+import justmc.annotation.Inline;
+import justmc.event.BlockInteractEvent;
 
-public final class PlayerRightClickEvent implements PlayerEvent, CancellableEvent,
-        BlockEvent, BlockFaceEvent, ItemEvent, EquipmentSlotEvent {
+@Inline
+@Event(id = "player_right_click")
+public final class PlayerRightClickEvent implements BlockInteractEvent {
     private PlayerRightClickEvent() {}
-
-    public native boolean hasBlock();
 }

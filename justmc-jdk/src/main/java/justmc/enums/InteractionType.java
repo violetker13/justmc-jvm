@@ -1,6 +1,8 @@
 package justmc.enums;
 
-public enum InteractionType {
+import justmc.Primitive;
+
+public enum InteractionType implements Primitive {
     LEFT_CLICK_AIR,
     LEFT_CLICK_BLOCK,
     RIGHT_CLICK_AIR,

@@ -2,38 +2,42 @@ val jvmVersion = property("justmc.jvm.version").toString()
 val jdkVersion = property("justmc.jdk.version").toString()
 
 val jvmPath = "jjvm/justmc-jvm-$jvmVersion.jar"
-val jdkPath = "jjvm/justmc-jdk-$jdkVersion.jar"
+val jdkPath = "libs/justmc-jdk-$jdkVersion.jar"
 
-fun download(url: String) {
+fun download(url: String, dir: String) {
     println("Download $url")
     val fileName = url.substringAfterLast('/')
-    val outputFile = file("jjvm/$fileName")
+    val dirFile = file(dir)
+    dirFile.mkdirs()
     ant.invokeMethod("get", mapOf(
         "src" to url,
-        "dest" to outputFile,
+        "dest" to File(dirFile, fileName),
         "verbose" to true
     ))
 }
 
 fun checkJars() {
-    file("jjvm").mkdirs()
-    if (!file(jvmPath).exists()) download("https://github.com/unidok/justmc-jvm/releases/download/jvm-$jvmVersion/justmc-jvm-$jvmVersion.jar")
-    if (!file(jdkPath).exists()) download("https://github.com/unidok/justmc-jvm/releases/download/jdk-$jdkVersion/justmc-jdk-$jdkVersion.jar")
+    if (!file(jvmPath).exists()) download("https://github.com/unidok/justmc-jvm/releases/download/jvm-$jvmVersion/justmc-jvm-$jvmVersion.jar", "jjvm")
+    if (!file(jdkPath).exists()) download("https://github.com/unidok/justmc-jvm/releases/download/jdk-$jdkVersion/justmc-jdk-$jdkVersion.jar", "libs")
 }
 
 checkJars()
 
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs("libs")
+    }
+}
+
 dependencies {
-    add("compileOnly", files(jdkPath))
+    add("implementation", fileTree("libs") { include("*.jar") })
 }
 
 tasks.named("jar", Jar::class.java) {
-    val outDir = if (hasProperty("justmc.dir.out")) {
-        property("justmc.dir.out").toString()
-    } else {
-        "./jjvm/out"
+    if (hasProperty("justmc.dir.out")) {
+        destinationDirectory.set(file(property("justmc.dir.out").toString()))
     }
-    destinationDirectory.set(file(outDir))
 }
 
 tasks.register("buildModule", JavaExec::class.java) {

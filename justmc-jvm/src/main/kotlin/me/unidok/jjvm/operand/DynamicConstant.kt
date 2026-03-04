@@ -1,19 +1,18 @@
 package me.unidok.jjvm.operand
 
+import me.unidok.jjvm.TranslateException
 import me.unidok.jjvm.TranslationContext
-import me.unidok.justcode.value.NumberValue
-import me.unidok.justcode.value.TextValue
-import me.unidok.justcode.value.Value
-import me.unidok.justcode.value.Variable
+import me.unidok.justcode.value.*
 import org.objectweb.asm.Type
 
-class DynamicConstant(
+data class DynamicConstant(
     @JvmField val value: Value
 ) : Operand {
     companion object {
         private val biCache = Array(256) { DynamicConstant(NumberValue((it - 128).toDouble())) }
         private val dcCache = HashMap<Any, DynamicConstant>()
         private val valueCache = HashMap<Value, DynamicConstant>()
+        private val gameValues = HashMap<String, DynamicConstant>()
 
         fun valueOf(value: Int): DynamicConstant {
             if (value >= -128 && value <= 127) return biCache[value + 128]
@@ -41,6 +40,10 @@ class DynamicConstant(
             return dcCache.getOrPut(value) { DynamicConstant(TextValue(value)) }
         }
 
+        fun gameValueOf(name: String): DynamicConstant {
+            return gameValues.getOrPut(name) { DynamicConstant(GameValue(name)) }
+        }
+
         fun valueOf(value: Value): DynamicConstant {
             return valueCache.getOrPut(value) { DynamicConstant(value) }
         }
@@ -59,8 +62,8 @@ class DynamicConstant(
             is Long -> valueOf(obj)
             is Double -> valueOf(obj)
             is String -> valueOf(obj)
-            is Type -> throw IllegalStateException("Пока что нету классов")
-            else -> throw IllegalArgumentException("Unknown value ${obj.javaClass} $obj")
+            is Type -> TODO()
+            else -> throw TranslateException("Unknown value ${obj.javaClass} $obj")
         }
     }
 

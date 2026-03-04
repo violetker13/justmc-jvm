@@ -11,7 +11,6 @@ import me.unidok.jjvm.model.UploadResponse
 import me.unidok.jjvm.nativeclass.NativeClasses
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.lang.Exception
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -48,7 +47,7 @@ fun main(args: Array<out String>) {
 
     NativeClasses.register()
     val (handlers, time) = measureTimedValue {
-        JarTranslator(jarPath, config).translate()
+        JarTranslator.translate(jarPath, config)
     }
     val json = if (!uploadFlag && config.prettyOutput) prettyJson else Json
     val stream = ByteArrayOutputStream(4096)
@@ -86,10 +85,10 @@ fun main(args: Array<out String>) {
 
         println("Uploaded ($time)")
         val url = "https://m.justmc.ru/api/" + body.id
-        if (config.isModule) {
-            println("/module loadUrl $url")
-        } else {
+        if (config.independent) {
             println("/module loadUrl force $url")
+        } else {
+            println("/module loadUrl $url")
         }
     }
 }

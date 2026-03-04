@@ -1,16 +1,24 @@
 package justmc.event.world;
 
-import justmc.CopyableList;
-import justmc.CopyableMap;
-import justmc.GameValue;
-import justmc.Util;
-import justmc.event.MessageEvent;
+import justmc.*;
+import justmc.annotation.Event;
+import justmc.annotation.Inline;
 import justmc.event.WebEvent;
 
+@Inline
+@Event(id = "world_web_response")
 public final class WebResponseEvent implements WebEvent {
     private WebResponseEvent() {}
 
-    public native String getResponse();
-    public native int getResponseCode();
-    public native CopyableMap<String, CopyableList<String>> getHeaders();
+    public String getResponse() {
+        return Unsafe.asString(GameValue.get("url_response"));
+    }
+
+    public int getResponseCode() {
+        return Unsafe.asInt(GameValue.get("url_response_code"));
+    }
+
+    public CopyableMap<Text, CopyableList<Text>> getHeaders() {
+        return Unsafe.asCopyableMap(GameValue.get("response_headers"));
+    }
 }

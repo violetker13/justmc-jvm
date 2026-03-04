@@ -1,8 +1,8 @@
 package me.unidok.jjvm.operation
 
 import me.unidok.jjvm.TranslationContext
-import me.unidok.jjvm.util.Translator
 import me.unidok.jjvm.operand.Operand
+import me.unidok.jjvm.util.Translator
 
 class PutStatic(
     @JvmField val owner: String,

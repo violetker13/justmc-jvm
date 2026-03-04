@@ -1,11 +1,11 @@
 package justmc.event.player;
 
-import justmc.enums.InteractionType;
-import justmc.event.*;
+import justmc.annotation.Event;
+import justmc.annotation.Inline;
+import justmc.event.BlockInteractEvent;
 
-public final class PlayerInteractEvent implements PlayerEvent, CancellableEvent,
-        ItemEvent, BlockEvent, BlockFaceEvent, EquipmentSlotEvent {
+@Inline
+@Event(id = "player_interact")
+public final class PlayerInteractEvent implements BlockInteractEvent {
     private PlayerInteractEvent() {}
-
-    public native InteractionType getInteraction();
 }

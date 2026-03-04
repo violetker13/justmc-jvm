@@ -1,10 +1,11 @@
 package justmc.event.player;
 
-import justmc.event.*;
+import justmc.annotation.Event;
+import justmc.annotation.Inline;
+import justmc.event.BlockInteractEvent;
 
-public final class PlayerLeftClickEvent implements PlayerEvent, CancellableEvent,
-        BlockEvent, BlockFaceEvent, ItemEvent {
+@Inline
+@Event(id = "player_left_click")
+public final class PlayerLeftClickEvent implements BlockInteractEvent {
     private PlayerLeftClickEvent() {}
-
-    public native boolean hasBlock();
 }

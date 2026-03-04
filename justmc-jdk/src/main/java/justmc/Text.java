@@ -1,9 +1,9 @@
 package justmc;
 
-import justmc.annotation.PrimitiveType;
+import justmc.annotation.Inline;
 
-@PrimitiveType
-public final class Text {
+@Inline
+public final class Text implements Primitive {
     private Text() {}
 
     public static native Text plain(String text);

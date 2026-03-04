@@ -1,9 +1,6 @@
-import justmc.*;
-import justmc.Math;
+import justmc.Player;
 import justmc.annotation.EventHandler;
-import justmc.event.player.*;
-import justmc.event.world.WebExceptionEvent;
-import justmc.event.world.WebResponseEvent;
+import justmc.event.player.PlayerSwapHandItemsEvent;
 
 
 public final class Main {

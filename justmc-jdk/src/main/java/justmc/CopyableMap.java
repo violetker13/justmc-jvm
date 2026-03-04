@@ -1,14 +1,30 @@
 package justmc;
-import justmc.annotation.PrimitiveTemplate;
-import justmc.annotation.PrimitiveType;
 
-@PrimitiveType
-public final class CopyableMap<@PrimitiveTemplate K, @PrimitiveTemplate V> {
+import justmc.annotation.Inline;
+
+@Inline
+public final class CopyableMap<K extends Primitive, V extends Primitive> implements Primitive {
     public static final int MAX_SIZE = 10000;
 
     private CopyableMap() {}
 
-    public static native <K, V> CopyableMap<K, V> of(CopyableList<K> keys, CopyableList<V> values);
+    public static native <K extends Primitive, V extends Primitive> CopyableMap<K, V> empty();
+
+    public static <K extends Primitive, V extends Primitive> CopyableMap<K, V> of(
+            CopyableList<K> keys,
+            CopyableList<V> values
+    ) {
+        var result = Variable.temp();
+        Unsafe.operation("set_variable_create_map", CopyableMap.of(
+                Pair.of("variable", result),
+                Pair.of("keys", keys),
+                Pair.of("values", values)
+        ));
+        return Unsafe.asCopyableMap(result);
+    }
+
+    @SafeVarargs
+    public static native <K extends Primitive, V extends Primitive> CopyableMap<K, V> of(Pair<K, V>... args);
 
     public native int size();
 

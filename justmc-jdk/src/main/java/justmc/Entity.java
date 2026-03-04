@@ -1,8 +1,8 @@
 package justmc;
 
-import justmc.annotation.PrimitiveType;
+import justmc.annotation.Inline;
 
-@PrimitiveType
+@Inline
 public enum Entity {
     CURRENT,
     DEFAULT,
@@ -16,6 +16,5 @@ public enum Entity {
     ALL,
     LAST;
 
-    public native void operation(String id);
-    public native void operation(String id, CopyableMap args);
+    public native void operation(String id, CopyableMap<Text, Primitive> args);
 }
