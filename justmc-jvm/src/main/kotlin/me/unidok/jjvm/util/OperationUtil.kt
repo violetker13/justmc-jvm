@@ -1,29 +1,20 @@
 package me.unidok.jjvm.util
 
-import me.unidok.jjvm.MethodContext
 import me.unidok.jjvm.TranslateException
-import me.unidok.jjvm.TranslationContext
-import me.unidok.jjvm.operand.DynamicConstant
-import me.unidok.jjvm.operand.InvokeMethod
 import me.unidok.jjvm.operand.NativeConstant
 import me.unidok.jjvm.operand.Operand
-import me.unidok.jjvm.operation.NonAffectOperation
-import me.unidok.jjvm.operation.Operation
-import me.unidok.jjvm.operation.TranslatableFutureOperation
 import me.unidok.justcode.value.NumberValue
 import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
 
-typealias NativeMethod = NativeMethodContext.() -> Operand?
-typealias MethodsMap = Map<String, NativeMethod>
 typealias JustOperation = me.unidok.justcode.operation.Operation
 
-fun Operand.requireConstString(message: String? = null): String {
-    if (this is NativeConstant) return value
-    if (this is DynamicConstant) return value.toString()
-    throw TranslateException(message ?: "$javaClass cannot be represented as constant string")
-}
+//fun Operand.requireConstString(message: String? = null): String {
+//    if (this is NativeConstant) return value
+//    if (this is DynamicConstant) return value.toString()
+//    throw TranslateException(message ?: "$javaClass cannot be represented as constant string")
+//}
 
 object Annotations {
     const val INLINE = "Ljustmc/annotation/Inline;"
@@ -55,28 +46,4 @@ fun List<JustOperation>.totalLength(): Int {
         }
     }
     return total
-}
-
-val DynamicConstant.number: Double get() = (value as NumberValue).number
-
-data class NativeMethodContext(
-    val method: InvokeMethod,
-    val source: MethodContext,
-    val operations: MutableList<Operation>
-) {
-    fun arg(index: Int): Operand = method.args[index]
-
-    val self get() = method.self
-
-    fun translateFuture(block: TranslationContext.() -> Unit) {
-        operations.add(TranslatableFutureOperation(block))
-    }
-
-    fun addOperation(operation: JustOperation) {
-        operations.add(NonAffectOperation(operation))
-    }
-
-    fun addOperation(operation: Operation) {
-        operations.add(operation)
-    }
 }

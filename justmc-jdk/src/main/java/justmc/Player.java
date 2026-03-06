@@ -25,12 +25,12 @@ public enum Player {
     public final void sendMessage(Text[] messages, TextMerging merging) {
         operation("player_send_message", CopyableMap.of(
                 Pair.of("messages", CopyableList.of(messages)),
-                Pair.of("merging", Unsafe.typed(merging))
+                Pair.of("merging", Unsafe.cast(merging))
         ));
     }
 
     public final Location getLocation() {
-        return Unsafe.asLocation(GameValue.ofPlayer(this).getValue("location"));
+        return Unsafe.cast(GameValue.ofPlayer(this).getValue("location"));
     }
 
     public final double getX() {
@@ -46,6 +46,6 @@ public enum Player {
     }
 
     public final Location getTargetBlock() {
-        return Unsafe.asLocation(GameValue.ofPlayer(this).getValue("target_block"));
+        return Unsafe.cast(GameValue.ofPlayer(this).getValue("target_block"));
     }
 }

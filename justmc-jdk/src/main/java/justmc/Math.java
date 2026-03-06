@@ -10,8 +10,8 @@ public final class Math {
     public static final double E = 2.718281828459045;
     public static final double PI = 3.141592653589793;
     public static final double TAU = 2.0 * PI;
-    public static final double DEGREES_TO_RADIANS = PI / 180.0;
-    public static final double RADIANS_TO_DEGREES = 180.0 / PI;
+    public static final double DEGREES_TO_RADIANS = 0.017453292519943295;
+    public static final double RADIANS_TO_DEGREES = 57.29577951308232;
 
     public static double pow(double x, double power) {
         var result = Variable.temp();

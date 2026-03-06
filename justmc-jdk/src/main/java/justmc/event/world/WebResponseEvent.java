@@ -10,8 +10,8 @@ import justmc.event.WebEvent;
 public final class WebResponseEvent implements WebEvent {
     private WebResponseEvent() {}
 
-    public String getResponse() {
-        return Unsafe.asString(GameValue.get("url_response"));
+    public Text getResponse() {
+        return Unsafe.cast(GameValue.get("url_response"));
     }
 
     public int getResponseCode() {
@@ -19,6 +19,6 @@ public final class WebResponseEvent implements WebEvent {
     }
 
     public CopyableMap<Text, CopyableList<Text>> getHeaders() {
-        return Unsafe.asCopyableMap(GameValue.get("response_headers"));
+        return Unsafe.cast(GameValue.get("response_headers"));
     }
 }

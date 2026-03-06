@@ -7,10 +7,10 @@ import justmc.Unsafe;
 
 public interface BlockEvent {
     default Location getBlockLocation() {
-        return Unsafe.asLocation(GameValue.get("event_block_location"));
+        return Unsafe.cast(GameValue.get("event_block_location"));
     }
 
     default Block getBlock() {
-        return Unsafe.asBlock(GameValue.get("event_block"));
+        return Unsafe.cast(GameValue.get("event_block"));
     }
 }

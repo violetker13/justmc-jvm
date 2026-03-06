@@ -3,6 +3,7 @@ package me.unidok.jjvm.operation
 import me.unidok.jjvm.TranslationContext
 import me.unidok.jjvm.operand.DynamicConstant
 import me.unidok.jjvm.util.JustOperation
+import me.unidok.jjvm.util.Values
 
 class Increment(
     @JvmField val local: Int,
@@ -25,13 +26,13 @@ class Increment(
             value >= 0 -> JustOperation(
                 "set_variable_increment", mapOf(
                     "variable" to variable,
-                    "number" to DynamicConstant.valueOf(value).value
+                    "number" to Values.valueOf(value)
                 )
             )
             else -> JustOperation(
                 "set_variable_decrement", mapOf(
                     "variable" to variable,
-                    "number" to DynamicConstant.valueOf(value).value
+                    "number" to Values.valueOf(value)
                 )
             )
         })

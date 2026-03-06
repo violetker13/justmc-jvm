@@ -1,6 +1,7 @@
 package justmc.event.player;
 
 import justmc.GameValue;
+import justmc.Text;
 import justmc.Unsafe;
 import justmc.annotation.Event;
 import justmc.annotation.Inline;
@@ -12,7 +13,7 @@ import justmc.event.PlayerEvent;
 public final class PlayerChatEvent implements PlayerEvent, CancellableEvent {
     private PlayerChatEvent() {}
 
-    public String getMessage() {
-        return Unsafe.asString(GameValue.get("event_chat_message"));
+    public Text getMessage() {
+        return Unsafe.cast(GameValue.get("event_chat_message"));
     }
 }

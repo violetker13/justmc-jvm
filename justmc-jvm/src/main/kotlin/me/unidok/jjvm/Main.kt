@@ -8,7 +8,7 @@ import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import me.unidok.jjvm.model.JJVMConfig
 import me.unidok.jjvm.model.UploadResponse
-import me.unidok.jjvm.nativeclass.NativeClasses
+import me.unidok.jjvm.nativemethod.NativeMethods
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.net.URI
@@ -45,7 +45,7 @@ fun main(args: Array<out String>) {
         JJVMConfig()
     }
 
-    NativeClasses.register()
+    NativeMethods.register()
     val (handlers, time) = measureTimedValue {
         JarTranslator.translate(jarPath, config)
     }

@@ -1,6 +1,6 @@
 package me.unidok.jjvm.util
 
-import me.unidok.jjvm.MethodContext
+import me.unidok.jjvm.SourceMethod
 import me.unidok.jjvm.operation.IfBranch
 import me.unidok.jjvm.operation.LoopBranch
 import me.unidok.jjvm.operation.Operation
@@ -92,7 +92,7 @@ object Debugger {
         }
     }
 
-    fun debugIR(source: MethodContext) {
+    fun debugIR(source: SourceMethod) {
         println("\tIR:")
         debugOperations("\t\t", source.operations)
         println()

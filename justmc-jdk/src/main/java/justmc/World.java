@@ -9,10 +9,6 @@ import justmc.enums.RayCollisionMode;
 public final class World {
     private World() {}
 
-    public static long currentTimeMillis() {
-        return Unsafe.asInt(GameValue.get("timestamp"));
-    }
-
     public static int getCpu() {
         return Unsafe.asInt(GameValue.get("cpu_usage"));
     }
@@ -36,7 +32,7 @@ public final class World {
                 Pair.of("max_distance", NumberPrimitive.of(maxDistance)),
                 Pair.of("ray_collision_mode", rayCollisionMode),
                 Pair.of("ignore_passable_blocks", BooleanEnum.of(ignorePassableBlocks)),
-                Pair.of("fluid_collision_mode", Unsafe.typed(fluidCollisionMode)),
+                Pair.of("fluid_collision_mode", Unsafe.cast(fluidCollisionMode)),
                 Pair.of("variable_for_hit_location", hitLocation),
                 Pair.of("variable_for_hit_block_location", hitBlockLocation),
                 Pair.of("variable_for_hit_block_face", hitBlockFace),
@@ -44,10 +40,10 @@ public final class World {
                 Pair.of("entities", entities)
         ));
         return RayTraceResult.of(
-                Unsafe.asLocation(hitLocation),
-                Unsafe.asLocation(hitBlockLocation),
-                Unsafe.asEnum(hitBlockFace),
-                Unsafe.asString(hitEntityUUID)
+                Unsafe.cast(hitLocation),
+                Unsafe.cast(hitBlockLocation),
+                Unsafe.cast(hitBlockFace),
+                Unsafe.cast(hitEntityUUID)
         );
     }
 }

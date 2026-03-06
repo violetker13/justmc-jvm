@@ -1,9 +1,9 @@
 package me.unidok.jjvm.util
 
-import me.unidok.jjvm.MethodContext
+import me.unidok.jjvm.SourceMethod
 import me.unidok.jjvm.TranslationContext
 import me.unidok.jjvm.operand.Operand
-import me.unidok.jjvm.operand.OperandResult
+import me.unidok.jjvm.operand.OperationResult
 import me.unidok.justcode.value.TextValue
 import me.unidok.justcode.value.Value
 import me.unidok.justcode.value.Variable
@@ -27,15 +27,10 @@ object Translator {
     private val returnMethod = JustOperation("control_return_function")
     private val returnInline = JustOperation("control_stop_repeat") //JustOperation("control_break_label", mapOf("label" to INLINE_METHOD_LABEL))
 
-    fun returnMethod(context: MethodContext): JustOperation {
+    fun returnMethod(context: TranslationContext): JustOperation {
         return if (context.varOffset > 0) returnInline else returnMethod
     }
 
-    fun returnMethod(context: TranslationContext) {
-
-    }
-
-    fun methodName(owner: String, name: String, desc: String): String = "$owner.$name$desc"
     fun static(owner: String, name: String): Variable = Variable("$owner.$name")
     fun argumentKey(n: Int): TextValue = TextValue(localName(n))
     fun localName(n: Int): String = "#$n"
@@ -52,7 +47,7 @@ object Translator {
     )
 
     fun setVariable(context: TranslationContext, variable: Variable?, value: Operand): Value {
-        if (value is OperandResult) return value.translate(context, variable)
+        if (value is OperationResult) return value.translate(context, variable)
         val value = value.translate(context, null)
         if (variable != null && variable != value) {
             context.addOperation(setVariable(variable, value))

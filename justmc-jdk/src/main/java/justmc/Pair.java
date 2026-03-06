@@ -7,7 +7,7 @@ public final class Pair<A extends Primitive, B extends Primitive> implements Pri
     private Pair() {}
 
     public static <A extends Primitive, B extends Primitive> Pair<A, B> of(A a, B b) {
-        return Unsafe.typed(CopyableList.of(a, b));
+        return Unsafe.cast(CopyableList.of(a, b));
     }
 
     public static Pair<Text, Primitive> of(String a, Primitive b) {
@@ -15,10 +15,10 @@ public final class Pair<A extends Primitive, B extends Primitive> implements Pri
     }
 
     public A getFirst() {
-        return Unsafe.typed(Unsafe.asCopyableList(this).get(0));
+        return Unsafe.cast(Unsafe.<CopyableList<?>>cast(this).get(0));
     }
 
     public B getSecond() {
-        return Unsafe.typed(Unsafe.asCopyableList(this).get(0));
+        return Unsafe.cast(Unsafe.<CopyableList<?>>cast(this).get(0));
     }
 }

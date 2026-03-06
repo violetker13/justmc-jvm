@@ -6,18 +6,20 @@ import justmc.annotation.Inline;
 public final class MutableList<E extends Primitive> {
     public MutableList() {
         Unsafe.operation("set_variable_create_list", CopyableMap.of(
-                Pair.of("variable", Unsafe.pointerTo(this))
+                Pair.of("variable", Unsafe.asVariable(this))
         ));
     }
 
     public MutableList(CopyableList<E> list) {
         Unsafe.operation("set_variable_create_list", CopyableMap.of(
-                Pair.of("variable", Unsafe.pointerTo(this)),
+                Pair.of("variable", Unsafe.asVariable(this)),
                 Pair.of("values", list)
         ));
     }
 
-    public native int size();
+    public int size() {
+        return Unsafe.<CopyableList<?>>cast(Unsafe.asVariable(this)).size();
+    }
 
     public native E get(int index);
 

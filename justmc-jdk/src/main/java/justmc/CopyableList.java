@@ -9,16 +9,41 @@ public final class CopyableList<E extends Primitive> implements Primitive {
     private CopyableList() {}
 
     public static native <E extends Primitive> CopyableList<E> empty();
-    public static native CopyableList<NumberPrimitive> of(boolean[] arr);
-    public static native CopyableList<NumberPrimitive> of(byte[] arr);
-    public static native CopyableList<NumberPrimitive> of(char[] arr);
-    public static native CopyableList<NumberPrimitive> of(short[] arr);
-    public static native CopyableList<NumberPrimitive> of(int[] arr);
-    public static native CopyableList<NumberPrimitive> of(long[] arr);
-    public static native CopyableList<NumberPrimitive> of(float[] arr);
-    public static native CopyableList<NumberPrimitive> of(double[] arr);
+
     @SafeVarargs
     public static native <E extends Primitive> CopyableList<E> of(E... values);
+
+    public static CopyableList<NumberPrimitive> of(boolean... arr) {
+        return of(Unsafe.<NumberPrimitive[]>cast(arr));
+    }
+
+    public static CopyableList<NumberPrimitive> of(byte... arr) {
+        return of(Unsafe.<NumberPrimitive[]>cast(arr));
+    }
+
+    public static CopyableList<NumberPrimitive> of(char... arr) {
+        return of(Unsafe.<NumberPrimitive[]>cast(arr));
+    }
+
+    public static CopyableList<NumberPrimitive> of(short... arr) {
+        return of(Unsafe.<NumberPrimitive[]>cast(arr));
+    }
+
+    public static CopyableList<NumberPrimitive> of(int... arr) {
+        return of(Unsafe.<NumberPrimitive[]>cast(arr));
+    }
+
+    public static CopyableList<NumberPrimitive> of(long... arr) {
+        return of(Unsafe.<NumberPrimitive[]>cast(arr));
+    }
+
+    public static CopyableList<NumberPrimitive> of(float... arr) {
+        return of(Unsafe.<NumberPrimitive[]>cast(arr));
+    }
+
+    public static CopyableList<NumberPrimitive> of(double... arr) {
+        return of(Unsafe.<NumberPrimitive[]>cast(arr));
+    }
 
     public int size() {
         var result = Variable.temp();

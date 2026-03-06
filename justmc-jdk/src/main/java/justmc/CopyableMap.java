@@ -20,7 +20,7 @@ public final class CopyableMap<K extends Primitive, V extends Primitive> impleme
                 Pair.of("keys", keys),
                 Pair.of("values", values)
         ));
-        return Unsafe.asCopyableMap(result);
+        return Unsafe.cast(result);
     }
 
     @SafeVarargs

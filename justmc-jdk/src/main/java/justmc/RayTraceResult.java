@@ -12,13 +12,13 @@ public final class RayTraceResult implements Primitive {
             @Nullable Location location,
             @Nullable Location blockLocation,
             @Nullable BlockFace face,
-            @Nullable String entity
+            @Nullable Text entity
     ) {
-        return Unsafe.typed(CopyableList.of(location, blockLocation, Unsafe.typed(face), Text.plain(entity)));
+        return Unsafe.cast(CopyableList.of(location, blockLocation, Unsafe.cast(face), entity));
     }
 
     public native @Nullable Location getLocation();
     public native @Nullable Location getBlockLocation();
     public native @Nullable BlockFace getFace();
-    public native @Nullable String getEntity();
+    public native @Nullable Text getEntity();
 }

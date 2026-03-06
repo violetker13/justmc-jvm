@@ -21,18 +21,4 @@ public final class Variable implements Primitive {
 
     public native String getName();
     public native VariableScope getScope();
-
-    public void set(Primitive value) {
-        Unsafe.operation("set_variable_value", CopyableMap.of(
-                Pair.of("variable", this),
-                Pair.of("value", value)
-        ));
-    }
-
-    public void remove() {
-        Unsafe.operation("set_variable_purge", CopyableMap.of(
-                Pair.of("names", Text.plain(getName())),
-                Pair.of("scope", getScope())
-        ));
-    }
 }

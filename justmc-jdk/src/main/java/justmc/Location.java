@@ -21,7 +21,7 @@ public final class Location implements Primitive {
                 Pair.of("coordinate", NumberPrimitive.of(x)),
                 Pair.of("type", LocationCoordinate.X)
         ));
-        return Unsafe.asLocation(result);
+        return Unsafe.cast(result);
     }
 
     public double getX() {
@@ -31,7 +31,7 @@ public final class Location implements Primitive {
                 Pair.of("location", this),
                 Pair.of("type", LocationCoordinate.X)
         ));
-        return Unsafe.asDouble(result);
+        return Unsafe.cast(result);
     }
 
     public double getY() {

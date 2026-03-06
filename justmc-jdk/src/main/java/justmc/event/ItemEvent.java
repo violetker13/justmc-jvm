@@ -6,6 +6,6 @@ import justmc.Unsafe;
 
 public interface ItemEvent {
     default Item getItem() {
-        return Unsafe.asItem(GameValue.get("event_item"));
+        return Unsafe.cast(GameValue.get("event_item"));
     }
 }

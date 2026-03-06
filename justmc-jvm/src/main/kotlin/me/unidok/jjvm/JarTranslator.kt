@@ -4,15 +4,32 @@ import me.unidok.jjvm.model.JJVMConfig
 import me.unidok.jjvm.operand.LoadFromLocal
 import me.unidok.jjvm.util.Annotations
 import me.unidok.jjvm.util.Debugger
+import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.util.Translator
 import me.unidok.jjvm.util.getAnnotation
 import me.unidok.justcode.Handlers
+import me.unidok.justcode.trigger.EventTrigger
+import me.unidok.justcode.trigger.FunctionTrigger
+import me.unidok.justcode.trigger.Trigger
+import me.unidok.justcode.value.ArrayValue
+import me.unidok.justcode.value.LocalizedText
+import me.unidok.justcode.value.TextValue
+import me.unidok.justcode.value.ValueType
+import me.unidok.justcode.value.parameter.Parameter
+import me.unidok.justcode.value.parameter.SingleParameter
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
+import org.objectweb.asm.tree.AbstractInsnNode
 import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.JumpInsnNode
+import org.objectweb.asm.tree.LabelNode
 import org.objectweb.asm.tree.MethodNode
 import java.util.jar.JarFile
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.iterator
+import kotlin.collections.set
 
 
 /**
@@ -42,13 +59,28 @@ import java.util.jar.JarFile
  *
  */
 
-object JarTranslator {
-    fun translate(jarPath: String, config: JJVMConfig): Handlers {
-        val finalTypes = HashSet<String>()
-        val classByName = HashMap<String, ClassNode>()
-        val classMethodsMaps = HashMap<ClassNode, Map<String, MethodNode>>()
-        val contexts = HashMap<MethodNode, MethodContext>()
-        val source = SourceContext(config, finalTypes, classByName, classMethodsMaps, contexts)
+class JarTranslator(
+    val jarPath: String,
+    val config: JJVMConfig
+) {
+    val finalTypes = HashSet<String>()
+    val classes = HashMap<String, SourceClass>()
+    val strings = ArrayList<String>()
+    val types = ArrayList<Type>()
+    val onInit = ArrayList<JustOperation>()
+
+    fun isFinalClass(name: String) = finalTypes.contains(name)
+
+    fun getMaxClassFields(name: String): Int {
+        return classes[name]!!.maxFields
+    }
+
+    fun findClass(name: String): SourceClass? {
+        return classes[name]
+    }
+
+    fun translate(): Handlers {
+
         val debug = config.debug
         val independent = config.independent
         val exclude = config.exclude
@@ -61,51 +93,147 @@ object JarTranslator {
                 val entryName = entry.name
                 if (exclude.any { entryName.startsWith(it) }) continue
                 if (entryName.endsWith(".class")) {
-                    val clazz = ClassNode()
-                    ClassReader(jarFile.getInputStream(entry)).accept(clazz, options) // InputStream закрывается сама
-                    val isFinal = clazz.access and Opcodes.ACC_FINAL != 0
+                    val classNode = ClassNode()
+                    ClassReader(jarFile.getInputStream(entry)).accept(classNode, options) // InputStream закрывается сама
+                    val clazz = SourceClass(this, classNode)
+                    val isFinal = classNode.access and Opcodes.ACC_FINAL != 0
                     if (isFinal) {
-                        finalTypes.add(clazz.name)
+                        finalTypes.add(classNode.name)
                     }
-                    val className = clazz.name
-                    val eventId = clazz.getAnnotation(Annotations.EVENT)?.get("id")
+                    val className = classNode.name
+                    val eventId = classNode.getAnnotation(Annotations.EVENT)?.get("id")
                     if (eventId != null) {
                         if (!isFinal) throw TranslateException("Event class $className")
                     }
-                    val methodsMap = HashMap<String, MethodNode>()
-
-                    for (method in clazz.methods) {
-                        val desc = method.desc
-                        val methodContext = MethodContext(source, clazz, method)
-                        contexts[method] = methodContext
+                    val methods = HashMap<String, SourceMethod>()
+                    for (methodNode in classNode.methods) {
+                        val desc = methodNode.desc
+                        val method = SourceMethod(clazz, methodNode)
                         Type.getArgumentTypes(desc).forEachIndexed { index, type ->
-                            methodContext.resolvedTypes.put(LoadFromLocal(index), type)
+                            method.resolvedTypes.put(LoadFromLocal(index), type)
                         }
-                        methodsMap.put(Translator.methodName(className, method.name, desc), method)
+                        methods.put("$className.${methodNode.name}$desc", method)
                     }
-                    classByName.put(className, clazz)
-                    classMethodsMaps.put(clazz, methodsMap)
+                    classes.put(className, SourceClass(this, classNode))
                 }
             }
         }
 
         // Генерация промежуточного представления
-        for (clazz in classByName.values) {
+        for ((className, clazz) in classes) {
             if (independent) {
-                val name = clazz.name
-                if (!finalTypes.contains(name) && classByName.values.all { name != it.superName }) {
-                    finalTypes.add(name)
+                if (!finalTypes.contains(className) && classes.values.all { className != it.node.superName }) {
+                    finalTypes.add(className)
                 }
             }
-            if (debug) Debugger.debugClass(clazz)
-            for (method in clazz.methods) {
-                if (debug) Debugger.debugMethod(method)
-                val methodContext = contexts[method]!!
-                methodContext.translateBytecode()
-                if (debug) Debugger.debugIR(methodContext)
+            if (debug) Debugger.debugClass(clazz.node)
+            for (method in clazz.methods.values) {
+                if (debug) Debugger.debugMethod(method.node)
+                method.node.instructions.forEachIndexed { index, inst ->
+                    when (inst.opcode) {
+                        -1 -> if (inst.type == AbstractInsnNode.LABEL) {
+                            method.labelIndexes[(inst as LabelNode).label] = index
+                        }
+                        Opcodes.GOTO -> {
+                            method.gotoIndexes[(inst as JumpInsnNode).label.label] = index
+                        }
+                    }
+                }
+                BytecodeTranslator(method, method.node.instructions.iterator()).translate(method.operations)
+                if (debug) Debugger.debugIR(method)
             }
         }
 
-        return source.writeHandlers()
+        val handlers = ArrayList<Trigger>()
+        handlers.add(EventTrigger(onInit, "world_start"))
+        for ((className, clazz) in classes) {
+            for (method in clazz.methods.values) {
+                val methodNode = method.node
+                val context = TranslationContext(method)
+                method.translateOperations(context)
+                val justOperations = context.operations
+
+                val methodName = methodNode.name
+                if (methodName == "<clinit>") {
+                    onInit.addAll(justOperations)
+                    continue
+                }
+
+                val methodDesc = methodNode.desc
+                val methodAccess = methodNode.access
+                val isStatic = methodAccess and Opcodes.ACC_STATIC != 0
+                val argumentTypes = Type.getArgumentTypes(methodDesc)
+                if (isStatic) {
+                    val eventHandler = methodNode.getAnnotation(Annotations.EVENT_HANDLER)
+                    if (eventHandler != null) {
+                        val eventName = eventHandler["id"]
+                        if (eventName == null) {
+                            if (argumentTypes.size != 1) {
+                                throw TranslateException("EventHandler is expecting only one parameter")
+                            }
+                            val internalName = argumentTypes[0].internalName
+                            val event = findClass(internalName)?.node
+                                ?.getAnnotation(Annotations.EVENT)?.get("id")?.toString()
+                                ?: throw TranslateException("Unknown event '$internalName'")
+                            handlers.add(EventTrigger(justOperations, event))
+                        } else {
+                            handlers.add(EventTrigger(justOperations, eventName.toString()))
+                        }
+                        continue
+                    }
+                }
+
+                val parameters = ArrayList<Parameter>()
+                var slot = 0
+                val returnType = Type.getReturnType(methodDesc)
+                if (returnType != Type.VOID_TYPE) {
+                    parameters.add(SingleParameter(
+                        description = LocalizedText.Data(emptyMap(), TextValue(returnType.className)),
+                        name = Translator.RETURN_VARIABLE_NAME,
+                        valueType = ValueType.VARIABLE,
+                        isRequired = false,
+                        slot = slot++
+                    ))
+                }
+
+                var param = 0
+                if (!isStatic || methodName == "<init>") {
+                    parameters.add(SingleParameter(
+                        description = LocalizedText.Data(emptyMap(), TextValue(className)),
+                        name = Translator.localName(param++),
+                        valueType = ValueType.ANY,
+                        isRequired = false,
+                        slot = slot++
+                    ))
+                }
+                for (type in argumentTypes) {
+                    parameters.add(SingleParameter(
+                        description = LocalizedText.Data(emptyMap(), TextValue(type.className)),
+                        name = Translator.localName(param++),
+                        valueType = if (type.internalName == "justmc/Variable") ValueType.VARIABLE else ValueType.ANY,
+                        isRequired = false,
+                        slot = slot++
+                    ))
+                }
+
+                val functionName = "$className.$methodName$methodDesc"
+
+                handlers.add(FunctionTrigger(
+                    justOperations,
+                    functionName,
+                    parameters,
+                    LocalizedText(LocalizedText.Data(emptyMap(), TextValue("${className.substringAfterLast('/')}.$methodName"))),
+                    LocalizedText(LocalizedText.Data(emptyMap(), TextValue(functionName)))
+                ))
+            }
+            onInit.add(JustOperation(
+                "set_variable_create_map_from_values", mapOf(
+                    "variable" to Translator.classInstance(className),
+                    "keys" to ArrayValue(), // TODO
+                    "values" to ArrayValue()
+                ))
+            )
+        }
+        return Handlers(handlers)
     }
 }
