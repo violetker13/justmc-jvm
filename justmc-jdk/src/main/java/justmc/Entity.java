@@ -16,5 +16,5 @@ public enum Entity {
     ALL,
     LAST;
 
-    public native void operation(String id, CopyableMap<Text, Primitive> args);
+    public native void operation(String id, MapPrimitive<Text, Primitive> args);
 }

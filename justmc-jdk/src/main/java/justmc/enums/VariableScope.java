@@ -1,8 +1,10 @@
 package justmc.enums;
 
 import justmc.Primitive;
+import justmc.annotation.Inline;
 
-public enum VariableScope implements Primitive {
+@Inline
+public enum VariableScope {
     GAME,
     SAVE,
     LOCAL,

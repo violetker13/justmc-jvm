@@ -1,8 +1,10 @@
 package justmc.enums;
 
 import justmc.Primitive;
+import justmc.annotation.Inline;
 
-public enum FluidCollisionMode implements Primitive {
+@Inline
+public enum FluidCollisionMode {
     NEVER,
     SOURCE_ONLY,
     ALWAYS

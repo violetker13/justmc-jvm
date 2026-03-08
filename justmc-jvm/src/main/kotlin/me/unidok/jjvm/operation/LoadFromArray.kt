@@ -1,9 +1,9 @@
 package me.unidok.jjvm.operation
 
 import me.unidok.jjvm.TranslationContext
+import me.unidok.jjvm.ValueProvider
 import me.unidok.jjvm.operand.Operand
 import me.unidok.jjvm.util.JustOperation
-import me.unidok.jjvm.util.Translator
 import me.unidok.justcode.value.Value
 import me.unidok.justcode.value.Variable
 
@@ -16,7 +16,7 @@ class LoadFromArray(
         context.addOperation(JustOperation(
             "set_variable_get_list_value", mapOf(
                 "variable" to variable,
-                "list" to Translator.instance(array.translate(context, null)),
+                "list" to ValueProvider.instance(array.translate(context, null)),
                 "number" to index.translate(context, null)
             )
         ))

@@ -18,7 +18,7 @@ public final class WebResponseEvent implements WebEvent {
         return Unsafe.asInt(GameValue.get("url_response_code"));
     }
 
-    public CopyableMap<Text, CopyableList<Text>> getHeaders() {
+    public MapPrimitive<Text, ListPrimitive<Text>> getHeaders() {
         return Unsafe.cast(GameValue.get("response_headers"));
     }
 }

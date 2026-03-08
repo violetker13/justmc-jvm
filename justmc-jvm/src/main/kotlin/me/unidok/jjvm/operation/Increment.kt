@@ -1,7 +1,6 @@
 package me.unidok.jjvm.operation
 
 import me.unidok.jjvm.TranslationContext
-import me.unidok.jjvm.operand.DynamicConstant
 import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.util.Values
 
@@ -10,7 +9,7 @@ class Increment(
     @JvmField val value: Int
 ) : Operation {
     override fun translate(context: TranslationContext) {
-        val variable = context.localVar(local)
+        val variable = context.provider.localVar(local)
         val value = value
         context.addOperation(when {
             value == 1 -> JustOperation(

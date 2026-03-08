@@ -47,7 +47,7 @@ fun main(args: Array<out String>) {
 
     NativeMethods.register()
     val (handlers, time) = measureTimedValue {
-        JarTranslator.translate(jarPath, config)
+        JarTranslator(jarPath, config).translate()
     }
     val json = if (!uploadFlag && config.prettyOutput) prettyJson else Json
     val stream = ByteArrayOutputStream(4096)
@@ -85,7 +85,7 @@ fun main(args: Array<out String>) {
 
         println("Uploaded ($time)")
         val url = "https://m.justmc.ru/api/" + body.id
-        if (config.independent) {
+        if (config.loadForce) {
             println("/module loadUrl force $url")
         } else {
             println("/module loadUrl $url")

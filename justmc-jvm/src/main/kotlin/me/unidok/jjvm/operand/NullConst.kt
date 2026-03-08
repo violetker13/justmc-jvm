@@ -1,14 +1,12 @@
-package me.unidok.jjvm.operation
+package me.unidok.jjvm.operand
 
 import me.unidok.jjvm.TranslationContext
+import me.unidok.jjvm.util.Values
 import me.unidok.justcode.value.Value
 import me.unidok.justcode.value.Variable
 
-class InternString(
-    val string: String
-) : OperationWithResult {
+data object NullConst : Operand {
     override fun translate(context: TranslationContext, variable: Variable?): Value {
-        context.sourceMethod.sourceClass.jar
-
+        return Values.CONST_0
     }
 }

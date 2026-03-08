@@ -5,20 +5,25 @@ import justmc.annotation.Inline;
 @Inline
 public final class MutableList<E extends Primitive> {
     public MutableList() {
-        Unsafe.operation("set_variable_create_list", CopyableMap.of(
-                Pair.of("variable", Unsafe.asVariable(this))
+        Unsafe.operation("set_variable_create_list", MapPrimitive.of(
+                Pair.of("variable", Unsafe.getInstance(this))
         ));
     }
 
-    public MutableList(CopyableList<E> list) {
-        Unsafe.operation("set_variable_create_list", CopyableMap.of(
-                Pair.of("variable", Unsafe.asVariable(this)),
+    public MutableList(ListPrimitive<E> list) {
+        Unsafe.operation("set_variable_create_list", MapPrimitive.of(
+                Pair.of("variable", Unsafe.getInstance(this)),
                 Pair.of("values", list)
         ));
     }
 
     public int size() {
-        return Unsafe.<CopyableList<?>>cast(Unsafe.asVariable(this)).size();
+        var result = Variable.temp();
+        Unsafe.operation("set_variable_list_get_size", MapPrimitive.of(
+                Pair.of("variable", result),
+                Pair.of("list", Unsafe.getInstance(this))
+        ));
+        return Unsafe.asInt(result);
     }
 
     public native E get(int index);
@@ -33,7 +38,7 @@ public final class MutableList<E extends Primitive> {
 
     public native void add(int index, E value);
 
-    public native void addAll(CopyableList<E> list);
+    public native void addAll(ListPrimitive<E> list);
 
     public native void set(int index, E value);
 
@@ -51,7 +56,7 @@ public final class MutableList<E extends Primitive> {
 
     public native void distinct();
 
-    public native CopyableList<E> subList(int begin, int end);
+    public native ListPrimitive<E> subList(int begin, int end);
 
     public native void sort();
 

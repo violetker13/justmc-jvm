@@ -21,11 +21,6 @@ object Values {
         return dcCache.getOrPut(value) { NumberValue(value.toDouble()) }
     }
 
-    fun valueOf(value: Long): Value {
-        if (value >= -128 && value <= 127) return biCache[value.toInt() + 128]
-        return dcCache.getOrPut(value) { NumberValue(value.toDouble()) }
-    }
-
     fun valueOf(value: Double): Value {
         val integer = value.toInt()
         if (value - integer == 0.0) return valueOf(integer)

@@ -1,8 +1,10 @@
 package justmc.enums;
 
 import justmc.Primitive;
+import justmc.annotation.Inline;
 
-public enum BlockFace implements Primitive {
+@Inline
+public enum BlockFace {
     NORTH,
     SOUTH,
     WEST,

@@ -5,13 +5,13 @@ import me.unidok.jjvm.util.Values
 import me.unidok.justcode.value.Value
 import me.unidok.justcode.value.Variable
 
-class FloatConst(
+class DoubleConst(
     val value: Double
 ) : Operand {
     companion object {
-        val CONST_0 = FloatConst(0.0)
-        val CONST_1 = FloatConst(1.0)
-        val CONST_2 = FloatConst(2.0)
+        val CONST_0 = DoubleConst(0.0)
+        val CONST_1 = DoubleConst(1.0)
+        val CONST_2 = DoubleConst(2.0)
     }
 
     override fun translate(context: TranslationContext, variable: Variable?): Value {

@@ -4,7 +4,7 @@ import justmc.annotation.Inline;
 import justmc.enums.LocationCoordinate;
 
 @Inline
-public final class Location implements Primitive {
+public final class Location extends Primitive {
     private Location() {}
 
     public static native Location of(double x, double y, double z, float yaw, float pitch);
@@ -15,61 +15,61 @@ public final class Location implements Primitive {
 
     public Location setX(double x) {
         var result = Variable.temp();
-        Unsafe.operation("set_variable_set_coordinate", CopyableMap.of(
+        Unsafe.operation("set_variable_set_coordinate", MapPrimitive.of(
                 Pair.of("variable", result),
                 Pair.of("location", this),
                 Pair.of("coordinate", NumberPrimitive.of(x)),
-                Pair.of("type", LocationCoordinate.X)
+                Pair.of("type", EnumPrimitive.of("X"))
         ));
         return Unsafe.cast(result);
     }
 
     public double getX() {
         var result = Variable.temp();
-        Unsafe.operation("set_variable_get_coordinate", CopyableMap.of(
+        Unsafe.operation("set_variable_get_coordinate", MapPrimitive.of(
                 Pair.of("variable", result),
                 Pair.of("location", this),
-                Pair.of("type", LocationCoordinate.X)
+                Pair.of("type", EnumPrimitive.of("X"))
         ));
         return Unsafe.cast(result);
     }
 
     public double getY() {
         var result = Variable.temp();
-        Unsafe.operation("set_variable_get_coordinate", CopyableMap.of(
+        Unsafe.operation("set_variable_get_coordinate", MapPrimitive.of(
                 Pair.of("variable", result),
                 Pair.of("location", this),
-                Pair.of("type", LocationCoordinate.Y)
+                Pair.of("type", EnumPrimitive.of("Y"))
         ));
         return Unsafe.asDouble(result);
     }
 
     public double getZ() {
         var result = Variable.temp();
-        Unsafe.operation("set_variable_get_coordinate", CopyableMap.of(
+        Unsafe.operation("set_variable_get_coordinate", MapPrimitive.of(
                 Pair.of("variable", result),
                 Pair.of("location", this),
-                Pair.of("type", LocationCoordinate.Z)
+                Pair.of("type", EnumPrimitive.of("Z"))
         ));
         return Unsafe.asDouble(result);
     }
 
     public double getYaw() {
         var result = Variable.temp();
-        Unsafe.operation("set_variable_get_coordinate", CopyableMap.of(
+        Unsafe.operation("set_variable_get_coordinate", MapPrimitive.of(
                 Pair.of("variable", result),
                 Pair.of("location", this),
-                Pair.of("type", LocationCoordinate.YAW)
+                Pair.of("type", EnumPrimitive.of("YAW"))
         ));
         return Unsafe.asDouble(result);
     }
 
     public double getPitch() {
         var result = Variable.temp();
-        Unsafe.operation("set_variable_get_coordinate", CopyableMap.of(
+        Unsafe.operation("set_variable_get_coordinate", MapPrimitive.of(
                 Pair.of("variable", result),
                 Pair.of("location", this),
-                Pair.of("type", LocationCoordinate.PITCH)
+                Pair.of("type", EnumPrimitive.of("PITCH"))
         ));
         return Unsafe.asDouble(result);
     }

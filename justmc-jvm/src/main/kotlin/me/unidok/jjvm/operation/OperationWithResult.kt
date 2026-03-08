@@ -8,8 +8,6 @@ interface OperationWithResult : Operation {
     fun translate(context: TranslationContext, variable: Variable?): Value
 
     override fun translate(context: TranslationContext) {
-        val variable = context.tempVar()
-        translate(context, variable)
-        context.sourceMethod.translated[this] = variable
+        translate(context, null)
     }
 }

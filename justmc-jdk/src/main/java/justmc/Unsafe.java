@@ -7,11 +7,11 @@ public final class Unsafe {
     private Unsafe() {}
 
     // Действия воровать отсюда: https://github.com/donzgold/JustMC_compilator/blob/master/data/actions.json
-    public static void operation(String id, CopyableMap<Text, Primitive> args) {
+    public static void operation(String id, MapPrimitive<Text, Primitive> args) {
         operation(Text.plain(id), args);
     }
 
-    public static native void operation(Text id, CopyableMap<Text, Primitive> args);
+    public static native void operation(Text id, MapPrimitive<Text, Primitive> args);
 
     public static native boolean asBoolean(Primitive o);
 
@@ -35,23 +35,23 @@ public final class Unsafe {
 
     public static native Object getObject(int adr);
 
-    public static native Variable asVariable(int adr);
+    public static native Variable getInstance(int adr);
 
-    public static Variable asVariable(Object o) {
-        return asVariable(asAddress(o));
+    public static Variable getInstance(Object o) {
+        return getInstance(asAddress(o));
     }
 
-    public void setVariable(Variable variable, Primitive value) {
-        Unsafe.operation("set_variable_value", CopyableMap.of(
+    public static void setVariable(Variable variable, Primitive value) {
+        Unsafe.operation("set_variable_value", MapPrimitive.of(
                 Pair.of("variable", variable),
                 Pair.of("value", value)
         ));
     }
 
-    public void removeVariable(Variable variable) {
-        Unsafe.operation("set_variable_purge", CopyableMap.of(
+    public static void removeVariable(Variable variable) {
+        Unsafe.operation("set_variable_purge", MapPrimitive.of(
                 Pair.of("names", Text.plain(variable.getName())),
-                Pair.of("scope", variable.getScope())
+                Pair.of("scope", EnumPrimitive.of(variable.getScope()))
         ));
     }
 

@@ -4,7 +4,7 @@ import justmc.annotation.Inline;
 import justmc.enums.VariableScope;
 
 @Inline
-public final class Variable implements Primitive {
+public final class Variable extends Primitive {
     private Variable() {}
 
     public static final int MAX_SAVE_VARIABLES = 800000;

@@ -1,8 +1,10 @@
 package justmc.enums;
 
 import justmc.Primitive;
+import justmc.annotation.Inline;
 
-public enum NoiseRangeMode implements Primitive {
+@Inline
+public enum NoiseRangeMode {
     ZERO_TO_ONE,
     FULL_RANGE
 }

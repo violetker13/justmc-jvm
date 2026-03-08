@@ -38,6 +38,14 @@ tasks.named("jar", Jar::class.java) {
     if (hasProperty("justmc.dir.out")) {
         destinationDirectory.set(file(property("justmc.dir.out").toString()))
     }
+    doFirst {
+        val libsPath = "$projectDir\\libs"
+        from(configurations.named("runtimeClasspath", Configuration::class.java).get().mapNotNull {
+            if (!it.path.startsWith(libsPath)) return@mapNotNull null
+            if (it.isDirectory) it else zipTree(it)
+        })
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.register("buildModule", JavaExec::class.java) {

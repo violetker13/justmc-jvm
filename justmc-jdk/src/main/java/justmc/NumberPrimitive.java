@@ -3,7 +3,9 @@ package justmc;
 import justmc.annotation.Inline;
 
 @Inline
-public final class NumberPrimitive implements Primitive {
+public final class NumberPrimitive extends Primitive {
+    private NumberPrimitive() {}
+
     public static native NumberPrimitive of(boolean x);
     public static native NumberPrimitive of(byte x);
     public static native NumberPrimitive of(char x);

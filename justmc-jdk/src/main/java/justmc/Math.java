@@ -15,7 +15,7 @@ public final class Math {
 
     public static double pow(double x, double power) {
         var result = Variable.temp();
-        Unsafe.operation("set_variable_power", CopyableMap.of(
+        Unsafe.operation("set_variable_power", MapPrimitive.of(
                 Pair.of("number", NumberPrimitive.of(x)),
                 Pair.of("power", NumberPrimitive.of(power))
         ));

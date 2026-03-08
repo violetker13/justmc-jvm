@@ -1,4 +1,5 @@
 package justmc;
 
-public interface Primitive {
+public abstract class Primitive {
+    Primitive() {}
 }

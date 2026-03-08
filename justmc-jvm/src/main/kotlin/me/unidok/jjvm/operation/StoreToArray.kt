@@ -1,9 +1,9 @@
 package me.unidok.jjvm.operation
 
 import me.unidok.jjvm.TranslationContext
+import me.unidok.jjvm.ValueProvider
 import me.unidok.jjvm.operand.Operand
 import me.unidok.jjvm.util.JustOperation
-import me.unidok.jjvm.util.Translator
 
 class StoreToArray(
     @JvmField val array: Operand,
@@ -11,7 +11,7 @@ class StoreToArray(
     @JvmField val value: Operand
 ) : Operation {
     override fun translate(context: TranslationContext) {
-        val array = Translator.instance(array.translate(context, null))
+        val array = ValueProvider.instance(array.translate(context, null))
         context.addOperation(JustOperation(
             "set_variable_set_list_value", mapOf(
                 "variable" to array,

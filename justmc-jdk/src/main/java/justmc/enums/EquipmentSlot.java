@@ -1,8 +1,10 @@
 package justmc.enums;
 
 import justmc.Primitive;
+import justmc.annotation.Inline;
 
-public enum EquipmentSlot implements Primitive {
+@Inline
+public enum EquipmentSlot {
     HAND,
     OFF_HAND
 }

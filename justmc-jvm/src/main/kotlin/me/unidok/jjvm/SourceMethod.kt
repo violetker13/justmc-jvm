@@ -1,19 +1,14 @@
 package me.unidok.jjvm
 
-import me.unidok.jjvm.nativemethod.NativeMethods
-import me.unidok.jjvm.operation.InvokeMethod
 import me.unidok.jjvm.operand.Operand
-import me.unidok.jjvm.operation.OperationWithResult
+import me.unidok.jjvm.operation.IfBranch
+import me.unidok.jjvm.operation.LoopBranch
 import me.unidok.jjvm.operation.Operation
-import me.unidok.jjvm.util.Annotations
-import me.unidok.jjvm.util.JustOperation
-import me.unidok.jjvm.util.Translator
-import me.unidok.jjvm.util.isAnnotated
+import me.unidok.jjvm.operation.OperationWithResult
 import me.unidok.justcode.value.Value
 import org.objectweb.asm.Label
-import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
-import org.objectweb.asm.tree.*
+import org.objectweb.asm.tree.MethodNode
 
 class SourceMethod(
     val sourceClass: SourceClass,
@@ -26,7 +21,6 @@ class SourceMethod(
     val translated = HashMap<OperationWithResult, Value>()
     val stack = ArrayDeque<Operand>(node.maxStack)
     val operations = ArrayList<Operation>()
-    val inlineMethodsStack = HashSet<SourceMethod>()
     var calls = 0
 
     fun isFinalClassInstance(operand: Operand): Boolean {
@@ -38,5 +32,14 @@ class SourceMethod(
         val type = resolvedTypes[operand]
         if (type != null) return type
         return null
+    }
+
+    private var length = -1
+
+    fun getLength(): Int {
+        if (length == -1) {
+            length = operations.sumOf { it.length }
+        }
+        return length
     }
 }

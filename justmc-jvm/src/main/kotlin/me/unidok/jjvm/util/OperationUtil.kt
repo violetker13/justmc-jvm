@@ -1,9 +1,8 @@
 package me.unidok.jjvm.util
 
-import me.unidok.jjvm.TranslateException
-import me.unidok.jjvm.operand.NativeConstant
-import me.unidok.jjvm.operand.Operand
-import me.unidok.justcode.value.NumberValue
+import me.unidok.jjvm.operation.IfBranch
+import me.unidok.jjvm.operation.LoopBranch
+import me.unidok.jjvm.operation.Operation
 import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
@@ -36,14 +35,4 @@ fun List<AnnotationNode>?.getAnnotation(annotation: String): Map<String, Any>? {
         result.put((values[index++] as String), values[index++])
     }
     return result
-}
-
-fun List<JustOperation>.totalLength(): Int {
-    var total = size
-    for (operation in this) {
-        operation.operations?.let {
-            total += it.totalLength()
-        }
-    }
-    return total
 }

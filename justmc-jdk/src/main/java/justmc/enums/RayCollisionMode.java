@@ -1,8 +1,10 @@
 package justmc.enums;
 
 import justmc.Primitive;
+import justmc.annotation.Inline;
 
-public enum RayCollisionMode implements Primitive {
+@Inline
+public enum RayCollisionMode {
     ONLY_BLOCKS,
     BLOCKS_AND_ENTITIES,
     ONLY_ENTITIES

@@ -1,8 +1,11 @@
 package justmc.enums;
 
 import justmc.Primitive;
+import justmc.Text;
+import justmc.annotation.Inline;
 
-public enum TextParsing implements Primitive {
+@Inline
+public enum TextParsing {
     PLAIN,
     LEGACY,
     MINIMESSAGE,

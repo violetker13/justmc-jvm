@@ -1,8 +1,10 @@
 package justmc.enums;
 
 import justmc.Primitive;
+import justmc.annotation.Inline;
 
-public enum LocationCoordinate implements Primitive {
+@Inline
+public enum LocationCoordinate {
     X,
     Y,
     Z,

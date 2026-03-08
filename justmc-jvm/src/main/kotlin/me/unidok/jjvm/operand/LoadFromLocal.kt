@@ -8,7 +8,7 @@ data class LoadFromLocal(
     @JvmField val local: Int
 ) : Operand {
     override fun translate(context: TranslationContext, variable: Variable?): Value {
-        return context.localVar(local)
+        return context.provider.localVar(local)
     }
 
     override fun toString(): String = "LoadFromLocal(local=$local)"

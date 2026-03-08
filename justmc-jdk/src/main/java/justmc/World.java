@@ -1,7 +1,6 @@
 package justmc;
 
 import justmc.annotation.Inline;
-import justmc.enums.BooleanEnum;
 import justmc.enums.FluidCollisionMode;
 import justmc.enums.RayCollisionMode;
 
@@ -20,18 +19,18 @@ public final class World {
             RayCollisionMode rayCollisionMode,
             boolean ignorePassableBlocks,
             FluidCollisionMode fluidCollisionMode,
-            CopyableList<Text> entities
+            ListPrimitive<Text> entities
     ) {
         var hitLocation = Variable.temp();
         var hitBlockLocation = Variable.temp();
         var hitBlockFace = Variable.temp();
         var hitEntityUUID = Variable.temp();
-        Unsafe.operation("set_variable_ray_trace_result", CopyableMap.of(
+        Unsafe.operation("set_variable_ray_trace_result", MapPrimitive.of(
                 Pair.of("start", start),
                 Pair.of("ray_size", NumberPrimitive.of(raySize)),
                 Pair.of("max_distance", NumberPrimitive.of(maxDistance)),
-                Pair.of("ray_collision_mode", rayCollisionMode),
-                Pair.of("ignore_passable_blocks", BooleanEnum.of(ignorePassableBlocks)),
+                Pair.of("ray_collision_mode", EnumPrimitive.of(rayCollisionMode)),
+                Pair.of("ignore_passable_blocks", EnumPrimitive.of(ignorePassableBlocks)),
                 Pair.of("fluid_collision_mode", Unsafe.cast(fluidCollisionMode)),
                 Pair.of("variable_for_hit_location", hitLocation),
                 Pair.of("variable_for_hit_block_location", hitBlockLocation),

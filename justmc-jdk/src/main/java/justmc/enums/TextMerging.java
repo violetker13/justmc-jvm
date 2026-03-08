@@ -1,8 +1,10 @@
 package justmc.enums;
 
 import justmc.Primitive;
+import justmc.annotation.Inline;
 
-public enum TextMerging implements Primitive {
+@Inline
+public enum TextMerging {
     SPACES,
     LINES,
     CONCATENATION

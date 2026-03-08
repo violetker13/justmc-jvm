@@ -14,18 +14,18 @@ public enum Player {
     RANDOM,
     ALL;
 
-    public final native void operation(String id, CopyableMap<Text, Primitive> args);
+    public final native void operation(String id, MapPrimitive<Text, Primitive> args);
 
     public final void sendMessage(String message) {
-        operation("player_send_message", CopyableMap.of(
+        operation("player_send_message", MapPrimitive.of(
                 Pair.of("messages", Text.legacy(message))
         ));
     }
 
     public final void sendMessage(Text[] messages, TextMerging merging) {
-        operation("player_send_message", CopyableMap.of(
-                Pair.of("messages", CopyableList.of(messages)),
-                Pair.of("merging", Unsafe.cast(merging))
+        operation("player_send_message", MapPrimitive.of(
+                Pair.of("messages", ListPrimitive.of(messages)),
+                Pair.of("merging", EnumPrimitive.of(merging))
         ));
     }
 

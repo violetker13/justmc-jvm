@@ -24,6 +24,14 @@ class IfBranch(
         }
     }
 
+    override val length: Int
+        get() {
+            var total = 0
+            operations.forEach { total += it.length }
+            otherwise?.forEach { total += it.length }
+            return total
+        }
+
     override fun translate(context: TranslationContext) {
         val operand1 = operand1.translate(context, null)
         val operand2 = operand2.translate(context, null)

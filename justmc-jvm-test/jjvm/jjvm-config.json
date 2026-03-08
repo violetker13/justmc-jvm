@@ -1,8 +1,8 @@
 {
-    "isModule": false,
     "exclude": [],
-    "sourceLineNumbers": false,
-    "exceptionStackTrace": false,
-    "debug": true,
-    "prettyOutput": true
+    "includeUnused": true,
+    "maxInlineLength": 5,
+    "printDebug": true,
+    "prettyOutput": true,
+    "loadForce": true
 }

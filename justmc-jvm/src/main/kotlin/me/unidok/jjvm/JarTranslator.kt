@@ -2,19 +2,19 @@ package me.unidok.jjvm
 
 import me.unidok.jjvm.model.JJVMConfig
 import me.unidok.jjvm.operand.LoadFromLocal
+import me.unidok.jjvm.operand.NativeValue
+import me.unidok.jjvm.operand.OperationResult
+import me.unidok.jjvm.operation.*
 import me.unidok.jjvm.util.Annotations
 import me.unidok.jjvm.util.Debugger
 import me.unidok.jjvm.util.JustOperation
-import me.unidok.jjvm.util.Translator
+import me.unidok.jjvm.util.Values
 import me.unidok.jjvm.util.getAnnotation
 import me.unidok.justcode.Handlers
 import me.unidok.justcode.trigger.EventTrigger
 import me.unidok.justcode.trigger.FunctionTrigger
 import me.unidok.justcode.trigger.Trigger
-import me.unidok.justcode.value.ArrayValue
-import me.unidok.justcode.value.LocalizedText
-import me.unidok.justcode.value.TextValue
-import me.unidok.justcode.value.ValueType
+import me.unidok.justcode.value.*
 import me.unidok.justcode.value.parameter.Parameter
 import me.unidok.justcode.value.parameter.SingleParameter
 import org.objectweb.asm.ClassReader
@@ -24,12 +24,8 @@ import org.objectweb.asm.tree.AbstractInsnNode
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.JumpInsnNode
 import org.objectweb.asm.tree.LabelNode
-import org.objectweb.asm.tree.MethodNode
+import java.util.jar.JarEntry
 import java.util.jar.JarFile
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.iterator
-import kotlin.collections.set
 
 
 /**
@@ -65,47 +61,55 @@ class JarTranslator(
 ) {
     val finalTypes = HashSet<String>()
     val classes = HashMap<String, SourceClass>()
-    val strings = ArrayList<String>()
-    val types = ArrayList<Type>()
-    val onInit = ArrayList<JustOperation>()
+    val registerNatives = ArrayList<Operation>()
+    val dynamicConstants = HashMap<Any, Variable>()
 
     fun isFinalClass(name: String) = finalTypes.contains(name)
 
-    fun getMaxClassFields(name: String): Int {
-        return classes[name]!!.maxFields
-    }
-
-    fun findClass(name: String): SourceClass? {
+    fun findClass(name: String?): SourceClass? {
         return classes[name]
     }
 
-    fun translate(): Handlers {
+    fun getClassAddress(type: Type): Variable = dynamicConstants[type]
+        ?: type.className.let { className ->
+            val variable = Variable("$className.class")
+            dynamicConstants[type] = variable
+            val new = New("java/lang/Class")
+            val adr = OperationResult(new)
+            val store = StoreToConstantPool(variable.name, adr)
+            val putField = PutField("java/lang/Class", "name", "Ljustmc/Text;", adr, NativeValue(Values.valueOf(className)))
+            registerNatives.addAll(listOf(new, store, putField))
+            variable
+        }
 
-        val debug = config.debug
-        val independent = config.independent
+    fun translate(): Handlers {
+        val debug = config.printDebug
         val exclude = config.exclude
 
         // Чтение JAR
         JarFile(jarPath).use { jarFile ->
-            var options = ClassReader.SKIP_FRAMES
-            if (!config.skipJarDebug) options += ClassReader.SKIP_DEBUG
             for (entry in jarFile.entries()) {
                 val entryName = entry.name
                 if (exclude.any { entryName.startsWith(it) }) continue
                 if (entryName.endsWith(".class")) {
                     val classNode = ClassNode()
-                    ClassReader(jarFile.getInputStream(entry)).accept(classNode, options) // InputStream закрывается сама
-                    val clazz = SourceClass(this, classNode)
+                    ClassReader(jarFile.getInputStream(entry)).accept(classNode, ClassReader.SKIP_FRAMES)
+
+                    val methods = HashMap<String, SourceMethod>()
+                    val clazz = SourceClass(this, classNode, methods)
+
                     val isFinal = classNode.access and Opcodes.ACC_FINAL != 0
                     if (isFinal) {
                         finalTypes.add(classNode.name)
                     }
-                    val className = classNode.name
+
+                    val className = classNode.name // TODO replace override
                     val eventId = classNode.getAnnotation(Annotations.EVENT)?.get("id")
                     if (eventId != null) {
-                        if (!isFinal) throw TranslateException("Event class $className")
+                        // TODO проверять что конструктор приватный
+                        if (!isFinal) throw TranslateException("Event class $className must be final")
                     }
-                    val methods = HashMap<String, SourceMethod>()
+
                     for (methodNode in classNode.methods) {
                         val desc = methodNode.desc
                         val method = SourceMethod(clazz, methodNode)
@@ -114,18 +118,13 @@ class JarTranslator(
                         }
                         methods.put("$className.${methodNode.name}$desc", method)
                     }
-                    classes.put(className, SourceClass(this, classNode))
+                    classes.put(className, clazz)
                 }
             }
         }
 
         // Генерация промежуточного представления
-        for ((className, clazz) in classes) {
-            if (independent) {
-                if (!finalTypes.contains(className) && classes.values.all { className != it.node.superName }) {
-                    finalTypes.add(className)
-                }
-            }
+        for (clazz in classes.values) {
             if (debug) Debugger.debugClass(clazz.node)
             for (method in clazz.methods.values) {
                 if (debug) Debugger.debugMethod(method.node)
@@ -145,21 +144,27 @@ class JarTranslator(
         }
 
         val handlers = ArrayList<Trigger>()
-        handlers.add(EventTrigger(onInit, "world_start"))
+        val onWorldStart = ArrayList<JustOperation>()
+        handlers.add(EventTrigger(onWorldStart, "world_start"))
         for ((className, clazz) in classes) {
             for (method in clazz.methods.values) {
                 val methodNode = method.node
-                val context = TranslationContext(method)
-                method.translateOperations(context)
-                val justOperations = context.operations
-
                 val methodName = methodNode.name
+                val methodDesc = methodNode.desc
+
                 if (methodName == "<clinit>") {
-                    onInit.addAll(justOperations)
+                    registerNatives.add(InlineMethod(method, emptyList()))
                     continue
                 }
 
-                val methodDesc = methodNode.desc
+                // TODO если энумка помечена как инлайн то скипать её методы
+
+                if (!config.includeUnused && method.calls == 0) continue
+
+                val justOperations = ArrayList<JustOperation>()
+                val context = TranslationContext(method, method.operations.iterator(), justOperations)
+                context.translate()
+
                 val methodAccess = methodNode.access
                 val isStatic = methodAccess and Opcodes.ACC_STATIC != 0
                 val argumentTypes = Type.getArgumentTypes(methodDesc)
@@ -189,7 +194,7 @@ class JarTranslator(
                 if (returnType != Type.VOID_TYPE) {
                     parameters.add(SingleParameter(
                         description = LocalizedText.Data(emptyMap(), TextValue(returnType.className)),
-                        name = Translator.RETURN_VARIABLE_NAME,
+                        name = context.provider.returnVariable.name,
                         valueType = ValueType.VARIABLE,
                         isRequired = false,
                         slot = slot++
@@ -200,7 +205,7 @@ class JarTranslator(
                 if (!isStatic || methodName == "<init>") {
                     parameters.add(SingleParameter(
                         description = LocalizedText.Data(emptyMap(), TextValue(className)),
-                        name = Translator.localName(param++),
+                        name = context.provider.localVar(param++).name,
                         valueType = ValueType.ANY,
                         isRequired = false,
                         slot = slot++
@@ -209,7 +214,7 @@ class JarTranslator(
                 for (type in argumentTypes) {
                     parameters.add(SingleParameter(
                         description = LocalizedText.Data(emptyMap(), TextValue(type.className)),
-                        name = Translator.localName(param++),
+                        name = context.provider.localVar(param++).name,
                         valueType = if (type.internalName == "justmc/Variable") ValueType.VARIABLE else ValueType.ANY,
                         isRequired = false,
                         slot = slot++
@@ -226,14 +231,12 @@ class JarTranslator(
                     LocalizedText(LocalizedText.Data(emptyMap(), TextValue(functionName)))
                 ))
             }
-            onInit.add(JustOperation(
-                "set_variable_create_map_from_values", mapOf(
-                    "variable" to Translator.classInstance(className),
-                    "keys" to ArrayValue(), // TODO
-                    "values" to ArrayValue()
-                ))
-            )
         }
+        TranslationContext(
+            sourceMethod = classes["java/lang/Class"]!!.methods["java/lang/Class.registerNatives()V"]!!,
+            iterator = registerNatives.iterator(),
+            destination = onWorldStart,
+        ).translate()
         return Handlers(handlers)
     }
 }

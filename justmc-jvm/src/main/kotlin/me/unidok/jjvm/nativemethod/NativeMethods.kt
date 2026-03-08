@@ -1,8 +1,8 @@
 package me.unidok.jjvm.nativemethod
 
 import me.unidok.jjvm.TranslationContext
-import me.unidok.jjvm.operation.InvokeMethod
 import me.unidok.jjvm.operand.Operand
+import me.unidok.jjvm.operation.InvokeNativeMethod
 import me.unidok.justcode.value.Value
 
 object NativeMethods {
@@ -19,7 +19,14 @@ object NativeMethods {
         methods.put(name, method)
     }
 
-    inline fun register(name: String, crossinline block: (InvokeMethod, TranslationContext) -> Value?) {
+    inline fun registerWithoutResult(name: String, crossinline block: (InvokeNativeMethod, TranslationContext) -> Unit) {
+        register(name, NativeMethod { method, context ->
+            block(method, context)
+            null
+        })
+    }
+
+    inline fun register(name: String, crossinline block: (InvokeNativeMethod, TranslationContext) -> Value) {
         register(name, NativeMethod { method, context ->
             block(method, context)
         })
