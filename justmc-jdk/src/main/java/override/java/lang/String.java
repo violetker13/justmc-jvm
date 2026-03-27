@@ -1,5 +1,3 @@
-
-
 package override.java.lang;
 
 import justmc.Text;

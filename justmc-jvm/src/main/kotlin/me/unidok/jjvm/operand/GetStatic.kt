@@ -1,11 +1,11 @@
 package me.unidok.jjvm.operand
 
-import me.unidok.jjvm.TranslationContext
-import me.unidok.jjvm.ValueProvider
+import me.unidok.jjvm.context.TranslationContext
+import me.unidok.jjvm.translator.ValueProvider
 import me.unidok.justcode.value.Value
 import me.unidok.justcode.value.Variable
 
-class GetStatic(
+data class GetStatic(
     @JvmField val owner: String,
     @JvmField val name: String
 ) : Operand {

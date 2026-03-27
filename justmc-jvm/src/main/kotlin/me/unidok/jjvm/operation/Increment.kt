@@ -1,13 +1,15 @@
 package me.unidok.jjvm.operation
 
-import me.unidok.jjvm.TranslationContext
+import me.unidok.jjvm.context.TranslationContext
+import me.unidok.jjvm.util.Debugger
 import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.util.Values
+import me.unidok.jjvm.util.appendObject
 
 class Increment(
     @JvmField val local: Int,
     @JvmField val value: Int
-) : Operation {
+) : Operation() {
     override fun translate(context: TranslationContext) {
         val variable = context.provider.localVar(local)
         val value = value
@@ -37,5 +39,12 @@ class Increment(
         })
     }
 
-    override fun toString(): String = "Increment(local=$local, value=$value)"
+    override fun appendTo(builder: StringBuilder, indent: String) {
+        builder.appendObject(
+            indent,
+            "Increment",
+            "local", local,
+            "value", value
+        )
+    }
 }

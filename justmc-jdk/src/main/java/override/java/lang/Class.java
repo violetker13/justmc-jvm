@@ -7,7 +7,7 @@ public final class Class<T> {
         registerNatives();
     }
 
-    public static native Class<?> forName();
+    public static native java.lang.Class<?> forName();
 
-    static native Class<?> getPrimitiveClass(String name);
+    static native java.lang.Class<?> getPrimitiveClass(java.lang.String name);
 }

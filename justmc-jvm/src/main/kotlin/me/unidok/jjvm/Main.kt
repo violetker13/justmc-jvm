@@ -9,6 +9,7 @@ import kotlinx.serialization.json.encodeToStream
 import me.unidok.jjvm.model.JJVMConfig
 import me.unidok.jjvm.model.UploadResponse
 import me.unidok.jjvm.nativemethod.NativeMethods
+import me.unidok.jjvm.translator.JarTranslator
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.net.URI

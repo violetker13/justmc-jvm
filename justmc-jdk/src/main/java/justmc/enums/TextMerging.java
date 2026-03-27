@@ -1,11 +1,12 @@
 package justmc.enums;
 
-import justmc.Primitive;
-import justmc.annotation.Inline;
+import justmc.EnumPrimitive;
+import justmc.Unsafe;
 
-@Inline
-public enum TextMerging {
-    SPACES,
-    LINES,
-    CONCATENATION
+public final class TextMerging extends EnumPrimitive {
+    public static final TextMerging SPACES = Unsafe.cast(EnumPrimitive.of("spaces"));
+    public static final TextMerging LINES = Unsafe.cast(EnumPrimitive.of("lines"));
+    public static final TextMerging CONCATENATION = Unsafe.cast(EnumPrimitive.of("concatenation"));
+
+    private TextMerging() {}
 }

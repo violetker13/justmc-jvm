@@ -1,7 +1,5 @@
 package override.java.util;
 
-import justmc.ListPrimitive;
-import justmc.MutableList;
 import justmc.Unsafe;
 
 public class ArrayList<E> implements List<E> {

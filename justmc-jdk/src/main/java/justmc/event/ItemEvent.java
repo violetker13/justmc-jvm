@@ -1,11 +1,11 @@
 package justmc.event;
 
-import justmc.GameValue;
 import justmc.Item;
 import justmc.Unsafe;
+import justmc.World;
 
 public interface ItemEvent {
     default Item getItem() {
-        return Unsafe.cast(GameValue.get("event_item"));
+        return Unsafe.cast(World.getValue("event_item"));
     }
 }

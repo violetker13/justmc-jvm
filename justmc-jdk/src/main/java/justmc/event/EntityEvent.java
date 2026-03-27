@@ -1,9 +1,10 @@
 package justmc.event;
 
-import justmc.Entity;
+import justmc.Selection;
+import justmc.entity.Entity;
 
 public interface EntityEvent {
     default Entity getEntity() {
-        return Entity.DEFAULT;
+        return (Entity) Selection.getDefault();
     }
 }

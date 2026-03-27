@@ -1,9 +1,11 @@
 package me.unidok.jjvm.operation
 
-import me.unidok.jjvm.TranslationContext
+import me.unidok.jjvm.context.TranslationContext
 import me.unidok.jjvm.operand.Operand
+import me.unidok.jjvm.util.Debugger
 import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.util.Values
+import me.unidok.jjvm.util.appendObject
 import me.unidok.justcode.value.ArrayValue
 import me.unidok.justcode.value.EnumValue
 import me.unidok.justcode.value.NumberValue
@@ -13,7 +15,7 @@ import me.unidok.justcode.value.Variable
 class UnaryOperator(
     @JvmField val type: Type,
     @JvmField val operand: Operand
-) : OperationWithResult {
+) : OperationWithResult() {
     enum class Type {
         NEG, F2L, L2I, I2B, I2C, I2S
     }
@@ -70,5 +72,12 @@ class UnaryOperator(
         return variable
     }
 
-    override fun toString(): String = "UnaryOperator(type=$type, operand=$operand)"
+    override fun appendTo(builder: StringBuilder, indent: String) {
+        builder.appendObject(
+            indent,
+            "UnaryOperator",
+            "type", type,
+            "operand", operand
+        )
+    }
 }

@@ -1,8 +1,10 @@
 package me.unidok.jjvm.operation
 
-import me.unidok.jjvm.TranslationContext
+import me.unidok.jjvm.context.TranslationContext
 import me.unidok.jjvm.operand.Operand
+import me.unidok.jjvm.util.Debugger
 import me.unidok.jjvm.util.JustOperation
+import me.unidok.jjvm.util.appendObject
 
 class IfBranch(
     @JvmField val type: Type,
@@ -10,7 +12,7 @@ class IfBranch(
     @JvmField val operand2: Operand,
     @JvmField val operations: List<Operation>,
     @JvmField val otherwise: List<Operation>? = null
-) : Operation {
+) : Operation() {
     enum class Type {
         EQ, NE, LT, GE, GT, LE;
 
@@ -56,5 +58,17 @@ class IfBranch(
                 context.translateChild(it)
             ))
         }
+    }
+
+    override fun appendTo(builder: StringBuilder, indent: String) {
+        builder.appendObject(
+            indent,
+            "IfBranch",
+            "type", type,
+            "operand1", operand1,
+            "operand2", operand2,
+            "operations", operations,
+            "otherwise", otherwise
+        )
     }
 }

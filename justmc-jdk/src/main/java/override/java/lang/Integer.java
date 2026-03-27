@@ -1,10 +1,7 @@
 package override.java.lang;
 
-import justmc.NumberPrimitive;
 import justmc.Unsafe;
 import justmc.annotation.Inline;
-
-import java.util.Objects;
 
 @Inline
 public final class Integer extends Number {
@@ -13,7 +10,7 @@ public final class Integer extends Number {
 
     public static final int MAX_VALUE = 0x7fffffff;
 
-    public static final Class<java.lang.Integer> TYPE = Unsafe.cast(Class.getPrimitiveClass(Unsafe.cast("int")));
+    public static final java.lang.Class<java.lang.Integer> TYPE = Unsafe.cast(Class.getPrimitiveClass("int"));
 
     public static native String toString(int i, int radix); // TODO
 
@@ -60,11 +57,6 @@ public final class Integer extends Number {
     @Inline
     public Integer(int value) {
         this.value = value;
-    }
-
-    @Inline
-    public Integer(String s) {
-        this.value = parseInt(s, 10);
     }
 
     @Inline
@@ -115,7 +107,7 @@ public final class Integer extends Number {
 
     @Inline
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(java.lang.Object obj) {
         if (obj instanceof Integer) {
             return value == ((Integer)obj).intValue();
         }

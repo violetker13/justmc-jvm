@@ -1,14 +1,13 @@
 package me.unidok.jjvm.operation
 
-import me.unidok.jjvm.TranslateException
-import me.unidok.jjvm.TranslationContext
-import me.unidok.jjvm.ValueProvider
-import me.unidok.jjvm.nativemethod.NativeMethods
+import me.unidok.jjvm.context.TranslationContext
+import me.unidok.jjvm.translator.ValueProvider
 import me.unidok.jjvm.operand.Operand
 import me.unidok.jjvm.util.Annotations
+import me.unidok.jjvm.util.Debugger
 import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.util.Values
-import me.unidok.jjvm.util.isAnnotated
+import me.unidok.jjvm.util.appendObject
 import me.unidok.justcode.value.*
 import org.objectweb.asm.Type
 
@@ -25,26 +24,34 @@ import org.objectweb.asm.Type
 	 bsmArgs: '[Ljava.lang.Object;@45c8e616'
  */
 class InvokeMethod(
-    @JvmField val owner: String,
-    @JvmField val name: String,
-    @JvmField val desc: String,
-    @JvmField val virtual: Boolean,
-    @JvmField val self: Operand?,
-    @JvmField val args: Array<out Operand>
-) : OperationWithResult {
+    override val owner: String,
+    override val name: String,
+    override val desc: String,
+    val virtual: Boolean,
+    val self: Operand?,
+    val args: Array<out Operand>
+) : MethodOperation() {
     private fun translate0(context: TranslationContext, variable: Variable?) {
         val owner = owner
         val name = name
         val desc = desc
-        val methodName = "$owner.$name$desc"
         val sourceMethod = context.sourceMethod
         val jar = sourceMethod.sourceClass.jar
         val args = args
         val self = self?.translate(context, null)
-        val functionName = if (virtual) {
-            TextValue("%entry(${ValueProvider.vtable(jar.getClassAddress(Type.getObjectType(owner))).name},$name$desc)")
+        val functionName: Value
+        if (virtual) {
+            functionName = context.tempVar()
+            context.addOperation(JustOperation(
+                "set_variable_get_map_value", mapOf(
+                    "variable" to functionName,
+                    "map" to ValueProvider.vtable(jar.getClassAddress(Type.getObjectType(owner))),
+                    "key" to TextValue("$name$desc")
+                )
+            ))
         } else {
-            TextValue(methodName)
+            val method = jar.findMethod(owner, name, desc) ?: throw NullPointerException("Method '$fullName' not found in jar")
+            functionName = TextValue(method.functionName)
         }
         context.addOperation(
             JustOperation(
@@ -77,5 +84,13 @@ class InvokeMethod(
         return variable
     }
 
-    override fun toString(): String = "InvokeMethod(owner=$owner, name=$name, desc=$desc, self=$self, args=${args.joinToString(", ", "[", "]")})"
+    override fun appendTo(builder: StringBuilder, indent: String) {
+        builder.appendObject(
+            indent,
+            "InvokeMethod",
+            "method", fullName,
+            "self", self,
+            "args", args
+        )
+    }
 }

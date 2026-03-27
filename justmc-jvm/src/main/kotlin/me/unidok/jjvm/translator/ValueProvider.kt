@@ -1,5 +1,6 @@
-package me.unidok.jjvm
+package me.unidok.jjvm.translator
 
+import me.unidok.jjvm.context.TranslationContext
 import me.unidok.jjvm.operand.Operand
 import me.unidok.jjvm.operand.OperationResult
 import me.unidok.jjvm.util.JustOperation
@@ -12,11 +13,12 @@ data class ValueProvider(
     var tempVars: Int = 0,
     val varOffset: Int = 0,
 ) {
-    companion object {
+    companion object Default {
         /** Текущий адрес для аллокатора */
         val addressVariable = Variable("adr")
         val defaultReturnVariable = Variable("res", Variable.Scope.LINE)
         val lineNumberVariable = Variable("ln", Variable.Scope.LOCAL)
+        val maxArrayVariable = Variable("MAX_ARRAY")
         private val inlineMethodLabel = TextValue("i")
         private val returnFunction = JustOperation("control_return_function")
         private val returnInline = JustOperation("control_break_label", mapOf("label" to inlineMethodLabel))
@@ -51,7 +53,7 @@ data class ValueProvider(
         }
 
         fun setVariable(context: TranslationContext, variable: Variable?, value: Value): Value {
-            if (variable != null && variable != value) {
+            if (variable != null) {
                 context.addOperation(setVariable(variable, value))
                 return variable
             }
@@ -70,6 +72,9 @@ data class ValueProvider(
         get() = if (varOffset > 0) returnInline else returnFunction
 
     fun tempVar(): Variable = tempVar(tempVars++)
-    fun localVar(n: Int): Variable = Companion.localVar(n + varOffset)
+    fun localVar(n: Int): Variable = Default.localVar(n + varOffset)
 
+    var resultVariable: Variable? = null
+
+    fun resultVar(): Variable = resultVariable ?: tempVar().also { resultVariable = it }
 }

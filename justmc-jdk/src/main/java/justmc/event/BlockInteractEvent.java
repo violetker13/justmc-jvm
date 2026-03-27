@@ -1,12 +1,12 @@
 package justmc.event;
 
-import justmc.GameValue;
 import justmc.Unsafe;
+import justmc.World;
 import justmc.enums.InteractionType;
 
 public interface BlockInteractEvent extends PlayerEvent, CancellableEvent,
         BlockEvent, BlockFaceEvent, ItemEvent, EquipmentSlotEvent {
     default InteractionType getInteraction() {
-        return Unsafe.cast(GameValue.get("event_interaction"));
+        return Unsafe.cast(World.getValue("event_interaction"));
     }
 }

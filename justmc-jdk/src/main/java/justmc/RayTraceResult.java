@@ -14,11 +14,22 @@ public final class RayTraceResult extends Primitive {
             @Nullable BlockFace face,
             @Nullable Text entity
     ) {
-        return Unsafe.cast(ListPrimitive.of(location, blockLocation, Unsafe.cast(face), entity));
+        return Unsafe.cast(ListPrimitive.of(location, blockLocation, face, entity));
     }
 
-    public native @Nullable Location getLocation();
-    public native @Nullable Location getBlockLocation();
-    public native @Nullable BlockFace getFace();
-    public native @Nullable Text getEntity();
+    public @Nullable Location getLocation() {
+        return Unsafe.cast(Unsafe.<ListPrimitive<?>>cast(this).get(0));
+    }
+
+    public @Nullable Location getBlockLocation() {
+        return Unsafe.cast(Unsafe.<ListPrimitive<?>>cast(this).get(1));
+    }
+
+    public @Nullable BlockFace getFace() {
+        return Unsafe.cast(Unsafe.<ListPrimitive<?>>cast(this).get(2));
+    }
+
+    public @Nullable Text getEntity() {
+        return Unsafe.cast(Unsafe.<ListPrimitive<?>>cast(this).get(3));
+    }
 }

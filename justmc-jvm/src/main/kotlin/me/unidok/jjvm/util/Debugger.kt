@@ -1,16 +1,17 @@
 package me.unidok.jjvm.util
 
-import me.unidok.jjvm.SourceMethod
+import me.unidok.jjvm.context.SourceMethod
 import me.unidok.jjvm.operation.IfBranch
 import me.unidok.jjvm.operation.LoopBranch
 import me.unidok.jjvm.operation.Operation
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.tree.*
+import kotlin.text.append
 
 object Debugger {
     fun toString(inst: AbstractInsnNode): String = buildString {
         val opcode = inst.opcode
-        append(opcode)
+        if (opcode != -1) append(opcode)
         append('\t')
         opcodeNames.getOrNull(opcode)?.let { name ->
             append(name)
@@ -39,63 +40,57 @@ object Debugger {
                 append('\t')
                 append(inst.itf)
             }
-            // TODO
-            is InvokeDynamicInsnNode -> append("invoke dynamic: desc: '${inst.desc}'; name: '${inst.name}'; bsm: '${inst.bsm}'; bsm name: '${inst.bsm.name}'; bsm desc: '${inst.bsm.desc}'; bsm owher: '${inst.bsm.owner}'; bsm tag: '${inst.bsm.tag}'; bsm interface: '${inst.bsm.isInterface}'; bsmArgs: '${inst.bsmArgs}'")
-            is JumpInsnNode -> append("jump: ${inst.label.label}")
-            is LabelNode -> append("lable: ${inst.label}")
-            is LdcInsnNode -> append("${inst.cst}")
-            is IincInsnNode -> append("#${inst.`var`} += ${inst.incr}")
+            is InvokeDynamicInsnNode -> append("invoke dynamic: desc: '${inst.desc}'; name: '${inst.name}'; bsm: '${inst.bsm}'; bsm name: '${inst.bsm.name}'; bsm desc: '${inst.bsm.desc}'; bsm owher: '${inst.bsm.owner}'; bsm tag: '${inst.bsm.tag}'; bsm interface: '${inst.bsm.isInterface}'; bsmArgs: '${inst.bsmArgs.joinToString(", ", "[", "]")}'")
+            is JumpInsnNode -> append(inst.label.label)
+            is LabelNode -> append(inst.label)
+            is LdcInsnNode -> append(inst.cst)
+            is IincInsnNode -> {
+                append('#')
+                append(inst.`var`)
+                append(' ')
+                append(inst.incr)
+            }
             is TableSwitchInsnNode -> append("table switch: min: ${inst.min}; max: ${inst.max}; label info: '${inst.dflt.label}' labels: '${inst.labels.joinToString {it.label.toString()}}'")
             is LookupSwitchInsnNode -> append("lookup switch: keys: '${inst.keys.joinToString()}', dflt: '${inst.dflt.label}'; labels: '${inst.labels.joinToString {it.label.toString()}}'")
             is MultiANewArrayInsnNode -> append("multi a new array: dims: ${inst.dims}; desc: '${inst.desc}'")
-            is FrameNode -> append("frame: type: ${inst.type}; local: '${inst.local.joinToString()}'; stack: '${inst.stack.joinToString()}'")
-            is LineNumberNode -> append("line number: ${inst.line} start: '${inst.start.label}'")
-            else -> {}
+            is LineNumberNode -> {
+                append("line ")
+                append(inst.line)
+                append(' ')
+                append(inst.start.label)
+            }
         }
     }
 
     fun debugClass(clazz: ClassNode) {
         println("Source file: ${clazz.sourceFile}")
         println("Source debug: ${clazz.sourceDebug}")
+        println("Access: ${clazz.access.toUInt().toString(2)}")
         println("Visible annotations: ${clazz.visibleAnnotations?.joinToString { "${it.desc} ${it.values?.joinToString()} "}}")
         println("Invisible annotations: ${clazz.invisibleAnnotations?.joinToString { "$${it.desc} ${it.values?.joinToString()} "}}")
         println("Analyzing class: ${clazz.name} extends ${clazz.superName} implements ${clazz.interfaces.joinToString()}")
     }
 
     fun debugMethod(method: MethodNode) {
+        println("\tAccess: ${method.access.toUInt().toString(2)}")
         println("\tVisible annotations: ${method.visibleAnnotations?.joinToString { "${it.desc} ${it.values?.joinToString()} "}}")
         println("\tInvisible annotations: ${method.invisibleAnnotations?.joinToString { "$${it.desc} ${it.values?.joinToString()} "}}")
-        println("\tMethod: ${method.name} ${method.desc} maxLocals=${method.maxLocals} maxStack=${method.maxStack}")
+        println("\tMethod: ${method.name}${method.desc} maxLocals=${method.maxLocals} maxStack=${method.maxStack}")
         println("\tBytecode:")
         for (inst in method.instructions) {
             println("\t\t${toString(inst)}")
         }
     }
 
-    private fun debugOperations(prefix: String, operations: List<Operation>) {
-        operations.forEach {
-            when (it) {
-                is LoopBranch -> {
-                    println("${prefix}LOOP")
-                    debugOperations("\t$prefix", it.operations)
-                }
-                is IfBranch -> {
-                    println("${prefix}IF ${it.operand1} ${it.type} ${it.operand2}")
-                    debugOperations("\t$prefix", it.operations)
-                    it.otherwise?.let { otherwise ->
-                        println("${prefix}ELSE")
-                        debugOperations("\t$prefix", otherwise)
-                    }
-                }
-                else -> println("$prefix$it")
-            }
-        }
-    }
-
     fun debugIR(source: SourceMethod) {
-        println("\tIR:")
-        debugOperations("\t\t", source.operations)
-        println()
+        val builder = StringBuilder(5 + source.getLength() * 32)
+        builder.append("\tIR:\n")
+        for (operation in source.operations) {
+            builder.append("\t\t")
+            operation.appendTo(builder, "\n\t\t")
+            builder.appendLine()
+        }
+        println(builder)
     }
 
     private val opcodeNames = arrayOfNulls<String>(200).also { arr ->
@@ -257,4 +252,85 @@ object Debugger {
         arr[IFNULL] = "IFNULL"
         arr[IFNONNULL] = "IFNONNULL"
     }
+}
+
+private fun StringBuilder.appendObject(indent: String, obj: Any?) {
+    when (obj) {
+        is Operation -> obj.appendTo(this, "$indent\t")
+        is Array<*> -> {
+            if (obj.isEmpty()) {
+                append("[]")
+                return
+            }
+            append('[')
+            val nextIndent = "$indent\t"
+            var index = 0
+            val size = obj.size
+            for (e in obj) {
+                appendObject(nextIndent, e)
+                if (++index < size) append(", ")
+                append(nextIndent)
+            }
+            append(indent)
+            append(']')
+        }
+        is List<*> -> {
+            if (obj.isEmpty()) {
+                append("[]")
+                return
+            }
+            append('[')
+            var index = 0
+            val size = obj.size
+            val nextIndent = "$indent\t"
+            for (e in obj) {
+                appendObject(nextIndent, e)
+                if (++index < size) append(", ")
+                append(nextIndent)
+            }
+            append(indent)
+            append(']')
+        }
+        is Map<*, *> -> {
+            if (obj.isEmpty()) {
+                append("{}")
+                return
+            }
+            append('{')
+            val nextIndent = "$indent\t"
+            var index = 0
+            val size = obj.size
+            for ((k, v) in obj) {
+                append(k)
+                append(" = ")
+                appendObject(nextIndent, v)
+                if (++index < size) append(", ")
+                append(nextIndent)
+            }
+            append(indent)
+            append('}')
+        }
+        else -> append(obj)
+    }
+}
+
+fun StringBuilder.appendObject(
+    indent: String,
+    className: String,
+    vararg fields: Any?
+) {
+    append(className)
+    append('(')
+    var index = 0
+    val size = fields.size
+    val nextIndent = "$indent\t"
+    while (index < size) {
+        append(nextIndent)
+        append(fields[index++])
+        append(" = ")
+        appendObject(nextIndent, fields[index++])
+        if (index < size) append(", ")
+    }
+    append(indent)
+    append(')')
 }

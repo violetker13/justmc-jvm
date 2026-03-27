@@ -1,11 +1,11 @@
 package justmc.event;
 
-import justmc.GameValue;
 import justmc.Text;
 import justmc.Unsafe;
+import justmc.World;
 
 public interface MessageEvent {
     default Text getMessage() {
-        return Unsafe.cast(GameValue.get("event_message"));
+        return Unsafe.cast(World.getValue("event_message"));
     }
 }

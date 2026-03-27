@@ -1,10 +1,11 @@
 val jvmVersion = property("justmc.jvm.version").toString()
 val jdkVersion = property("justmc.jdk.version").toString()
+val checkJars = property("justmc.check_jars")?.toString()?.toBoolean() ?: true
 
 val jvmPath = "jjvm/justmc-jvm-$jvmVersion.jar"
 val jdkPath = "libs/justmc-jdk-$jdkVersion.jar"
 
-fun download(url: String, dir: String) {
+fun download(dir: String, url: String) {
     println("Download $url")
     val fileName = url.substringAfterLast('/')
     val dirFile = file(dir)
@@ -17,8 +18,9 @@ fun download(url: String, dir: String) {
 }
 
 fun checkJars() {
-    if (!file(jvmPath).exists()) download("https://github.com/unidok/justmc-jvm/releases/download/jvm-$jvmVersion/justmc-jvm-$jvmVersion.jar", "jjvm")
-    if (!file(jdkPath).exists()) download("https://github.com/unidok/justmc-jvm/releases/download/jdk-$jdkVersion/justmc-jdk-$jdkVersion.jar", "libs")
+    if (!checkJars) return
+    if (!file(jvmPath).exists()) download("jjvm", "https://github.com/unidok/justmc-jvm/releases/download/jvm-$jvmVersion/justmc-jvm-$jvmVersion.jar")
+    if (!file(jdkPath).exists()) download("libs", "https://github.com/unidok/justmc-jvm/releases/download/jdk-$jdkVersion/justmc-jdk-$jdkVersion.jar")
 }
 
 checkJars()

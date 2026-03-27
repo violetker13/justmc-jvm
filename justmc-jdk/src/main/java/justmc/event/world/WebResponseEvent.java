@@ -11,14 +11,14 @@ public final class WebResponseEvent implements WebEvent {
     private WebResponseEvent() {}
 
     public Text getResponse() {
-        return Unsafe.cast(GameValue.get("url_response"));
+        return Unsafe.cast(World.getValue("url_response"));
     }
 
     public int getResponseCode() {
-        return Unsafe.asInt(GameValue.get("url_response_code"));
+        return Unsafe.asInt(World.getValue("url_response_code"));
     }
 
     public MapPrimitive<Text, ListPrimitive<Text>> getHeaders() {
-        return Unsafe.cast(GameValue.get("response_headers"));
+        return Unsafe.cast(World.getValue("response_headers"));
     }
 }

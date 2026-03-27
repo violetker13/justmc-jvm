@@ -1,9 +1,10 @@
 package justmc.event;
 
-import justmc.Player;
+import justmc.Selection;
+import justmc.entity.Player;
 
 public interface PlayerEvent {
     default Player getPlayer() {
-        return Player.DEFAULT;
+        return (Player) Selection.getDefault();
     }
 }

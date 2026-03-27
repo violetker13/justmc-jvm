@@ -1,6 +1,6 @@
 package me.unidok.jjvm.operand
 
-import me.unidok.jjvm.TranslationContext
+import me.unidok.jjvm.context.TranslationContext
 import me.unidok.jjvm.operation.New
 import me.unidok.jjvm.operation.PutField
 import me.unidok.jjvm.operation.StoreToConstantPool

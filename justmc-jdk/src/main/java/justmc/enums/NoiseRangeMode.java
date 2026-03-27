@@ -1,10 +1,11 @@
 package justmc.enums;
 
-import justmc.Primitive;
-import justmc.annotation.Inline;
+import justmc.EnumPrimitive;
+import justmc.Unsafe;
 
-@Inline
-public enum NoiseRangeMode {
-    ZERO_TO_ONE,
-    FULL_RANGE
+public final class NoiseRangeMode extends EnumPrimitive {
+    public static final NoiseRangeMode ZERO_TO_ONE = Unsafe.cast(EnumPrimitive.of("zero_to_one"));
+    public static final NoiseRangeMode FULL_RANGE = Unsafe.cast(EnumPrimitive.of("full_range"));
+
+    private NoiseRangeMode() {}
 }

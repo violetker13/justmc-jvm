@@ -2,10 +2,6 @@ package justmc;
 
 import justmc.annotation.Inline;
 
-/**
- * Примитив списка (предмет)
- * @param <E> Тип элементов
- */
 @Inline
 public final class ListPrimitive<E extends Primitive> extends Primitive {
     public static final int MAX_SIZE = 20000;

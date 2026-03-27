@@ -1,13 +1,13 @@
 package justmc.enums;
 
-import justmc.Primitive;
-import justmc.Text;
-import justmc.annotation.Inline;
+import justmc.EnumPrimitive;
+import justmc.Unsafe;
 
-@Inline
-public enum TextParsing {
-    PLAIN,
-    LEGACY,
-    MINIMESSAGE,
-    JSON
+public final class TextParsing extends EnumPrimitive {
+    public static final TextParsing PLAIN = Unsafe.cast(EnumPrimitive.of("plain"));
+    public static final TextParsing LEGACY = Unsafe.cast(EnumPrimitive.of("legacy"));
+    public static final TextParsing MINIMESSAGE = Unsafe.cast(EnumPrimitive.of("minimessage"));
+    public static final TextParsing JSON = Unsafe.cast(EnumPrimitive.of("json"));
+
+    private TextParsing() {}
 }

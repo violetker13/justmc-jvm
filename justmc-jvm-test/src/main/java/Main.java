@@ -1,11 +1,10 @@
-import justmc.Player;
+import justmc.Selection;
 import justmc.annotation.EventHandler;
 import justmc.event.player.PlayerSwapHandItemsEvent;
 
-
 public final class Main {
     static void println(String message) {
-        Player.ALL.sendMessage(message);
+        Selection.getAllPlayers().sendMessage(message);
     }
 
     @EventHandler

@@ -8,8 +8,10 @@ import justmc.enums.RayCollisionMode;
 public final class World {
     private World() {}
 
+    public static native Primitive getValue(String id);
+
     public static int getCpu() {
-        return Unsafe.asInt(GameValue.get("cpu_usage"));
+        return Unsafe.asInt(getValue("cpu_usage"));
     }
 
     public static RayTraceResult rayTrace(
@@ -29,7 +31,7 @@ public final class World {
                 Pair.of("start", start),
                 Pair.of("ray_size", NumberPrimitive.of(raySize)),
                 Pair.of("max_distance", NumberPrimitive.of(maxDistance)),
-                Pair.of("ray_collision_mode", EnumPrimitive.of(rayCollisionMode)),
+                Pair.of("ray_collision_mode", rayCollisionMode),
                 Pair.of("ignore_passable_blocks", EnumPrimitive.of(ignorePassableBlocks)),
                 Pair.of("fluid_collision_mode", Unsafe.cast(fluidCollisionMode)),
                 Pair.of("variable_for_hit_location", hitLocation),

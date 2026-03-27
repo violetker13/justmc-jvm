@@ -1,12 +1,12 @@
 package me.unidok.jjvm.operand
 
-import me.unidok.jjvm.TranslationContext
+import me.unidok.jjvm.context.TranslationContext
 import me.unidok.jjvm.util.Values
 import me.unidok.justcode.value.Value
 import me.unidok.justcode.value.Variable
 
-data class IntConst(
-    val value: Int
+class IntConst(
+    @JvmField val value: Int
 ) : Operand {
     companion object {
         val cache = Array(256) { IntConst(it - 128) }
@@ -28,4 +28,10 @@ data class IntConst(
     override fun translate(context: TranslationContext, variable: Variable?): Value {
         return Values.valueOf(value)
     }
+
+    override fun equals(other: Any?): Boolean = other is IntConst && other.value == value
+
+    override fun hashCode(): Int = value.hashCode()
+
+    override fun toString(): String = "IntConst($value)"
 }

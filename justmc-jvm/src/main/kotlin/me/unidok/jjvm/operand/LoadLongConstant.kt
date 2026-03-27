@@ -1,7 +1,7 @@
 package me.unidok.jjvm.operand
 
-import me.unidok.jjvm.TranslationContext
-import me.unidok.jjvm.operation.NonAffectOperation
+import me.unidok.jjvm.context.TranslationContext
+import me.unidok.jjvm.operation.ExactOperation
 import me.unidok.jjvm.util.JustOperation
 import me.unidok.jjvm.util.Values
 import me.unidok.justcode.value.TextValue
@@ -16,7 +16,7 @@ data class LoadLongConstant(
         val constants = jar.dynamicConstants
         return constants[value] ?: Variable("${value}L").also { variable ->
             constants[value] = variable
-            jar.registerNatives.add(NonAffectOperation(JustOperation(
+            jar.registerNatives.add(ExactOperation(JustOperation(
                 "set_variable_convert_text_to_number",
                 mapOf(
                     "variable" to variable,

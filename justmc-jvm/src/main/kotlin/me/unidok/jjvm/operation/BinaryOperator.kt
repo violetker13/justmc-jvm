@@ -1,8 +1,10 @@
 package me.unidok.jjvm.operation
 
-import me.unidok.jjvm.TranslationContext
+import me.unidok.jjvm.context.TranslationContext
 import me.unidok.jjvm.operand.Operand
+import me.unidok.jjvm.util.Debugger
 import me.unidok.jjvm.util.JustOperation
+import me.unidok.jjvm.util.appendObject
 import me.unidok.justcode.value.EnumValue
 import me.unidok.justcode.value.NumberValue
 import me.unidok.justcode.value.Value
@@ -12,7 +14,7 @@ class BinaryOperator(
     @JvmField val type: Type,
     @JvmField val operand1: Operand,
     @JvmField val operand2: Operand
-) : OperationWithResult {
+) : OperationWithResult() {
     enum class Type {
         REM, SHL, SHR, USHR, AND, OR, XOR
     }
@@ -99,5 +101,13 @@ class BinaryOperator(
         return variable
     }
 
-    override fun toString(): String = "BinaryOperator(type=$type, operand1=$operand1, operand2=$operand2)"
+    override fun appendTo(builder: StringBuilder, indent: String) {
+        builder.appendObject(
+            indent,
+            "BinaryOperator",
+            "type", type,
+            "operand1", operand1,
+            "operand2", operand2
+        )
+    }
 }

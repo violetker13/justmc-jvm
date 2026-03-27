@@ -10,12 +10,32 @@ public final class MapPrimitive<K extends Primitive, V extends Primitive> extend
 
     public static native <K extends Primitive, V extends Primitive> MapPrimitive<K, V> empty();
 
-    public static native <K extends Primitive, V extends Primitive> MapPrimitive<K, V> of(ListPrimitive<K> keys, ListPrimitive<V> values);
+    public static <K extends Primitive, V extends Primitive> MapPrimitive<K, V> of(ListPrimitive<K> keys, ListPrimitive<V> values) {
+        var result = Variable.result();
+        Unsafe.operation("set_variable_create_map", MapPrimitive.of(
+                Pair.of("variable", result),
+                Pair.of("keys", keys),
+                Pair.of("values", values)
+        ));
+        return Unsafe.cast(result);
+    }
 
     @SafeVarargs
-    public static native <K extends Primitive, V extends Primitive> MapPrimitive<K, V> of(Pair<K, V>... args);
+    public static <K extends Primitive, V extends Primitive> MapPrimitive<K, V> of(Pair<K, V>... args) {
+        MapPrimitive<K, V> result = empty();
+        for (Pair<K, V> pair : args) {
+            result.put(pair.getFirst(), pair.getSecond());
+        }
+        return result;
+    }
 
     public native int size();
+
+    public native boolean isEmpty();
+
+    public native boolean containsKey(K key);
+
+    public native boolean containsValue(V value);
 
     public native V get(K key);
 

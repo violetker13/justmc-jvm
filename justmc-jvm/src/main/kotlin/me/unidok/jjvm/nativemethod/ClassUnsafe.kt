@@ -1,31 +1,27 @@
 package me.unidok.jjvm.nativemethod
 
-import me.unidok.jjvm.TranslateException
+import me.unidok.jjvm.translator.ValueProvider
 import me.unidok.jjvm.util.JustOperation
+import me.unidok.jjvm.util.getString
 import me.unidok.justcode.value.MapValue
 import me.unidok.justcode.value.TextValue
-import me.unidok.justcode.value.Value
 
 object ClassUnsafe {
     private val regex = Regex("[a-z_]+")
 
-    private fun Value.requireId(): String {
-        val value = this as? TextValue ?: throw TranslateException("Argument must be const string")
-        if (!regex.matches(value.text)) throw TranslateException("Argument must matches with $regex")
-        return value.text
-    }
-
     fun register() {
-        NativeMethods.registerWithoutResult("justmc/Unsafe.operation(Ljustmc/Text;Ljustmc/MapPrimitive;)V") { method, context ->
-            val action = method.args[0].translate(context, null).requireId()
-            val args = method.args[1].translate(context, null) as? MapValue
-                ?: throw TranslateException("Operation arguments must be map primitive")
-            val values = args.values.mapKeys { it.key.requireId() }
+        NativeMethods.registerWithoutResult("justmc/Unsafe.operation(Ljava/lang/String;Ljustmc/MapPrimitive;)V") { method, context ->
+            println("ID ${method.args[0]}")
+            val action = method.args[0].getString(context.sourceMethod)
+                ?: throw IllegalStateException("Operation ID must be const string")
+            val args = method.args[1].also { println("ARGS $it") }.translate(context, null).also { println("ARGS TRANSLATED $it") } as? MapValue
+                ?: throw IllegalStateException("Operation arguments must be map primitive")
+            println("args ${args.values}")
+            val values = args.values.mapKeys { (it.key as TextValue).text }
             context.addOperation(JustOperation(action, values))
         }
-        val nothingToDo: NativeMethod = { method, context ->
-            method.args[0].translate(context, null)
-        }
+
+        val nothingToDo = EarlyNativeMethod { self, args, method -> args[0] }
         arrayOf(
             "justmc/Unsafe.asBoolean(Ljustmc/Primitive;)Z",
             "justmc/Unsafe.asByte(Ljustmc/Primitive;)B",
@@ -35,9 +31,15 @@ object ClassUnsafe {
             "justmc/Unsafe.asLong(Ljustmc/Primitive;)J",
             "justmc/Unsafe.asFloat(Ljustmc/Primitive;)F",
             "justmc/Unsafe.asDouble(Ljustmc/Primitive;)D",
-            "justmc/Unsafe.asString(Ljava/lang/Object;)Ljava/lang/String;"
+            "justmc/Unsafe.cast(Ljava/lang/Object;)Ljava/lang/Object;",
+            "justmc/Unsafe.asAddress(Ljava/lang/Object;)I",
+            "justmc/Unsafe.asObject(I)Ljava/lang/Object;"
         ).forEach {
-            NativeMethods.register(it, nothingToDo)
+            NativeMethods.registerEarly(it, nothingToDo)
+        }
+
+        NativeMethods.register("justmc/Unsafe.getInstance(I)Ljustmc/Variable;") { method, context ->
+            ValueProvider.instance(method.args[0].translate(context, null))
         }
     }
 }

@@ -1,16 +1,18 @@
 package me.unidok.jjvm.operation
 
-import me.unidok.jjvm.TranslationContext
+import me.unidok.jjvm.context.TranslationContext
 import me.unidok.jjvm.operand.Operand
 import me.unidok.jjvm.operand.OperationResult
+import me.unidok.jjvm.util.Debugger
 import me.unidok.jjvm.util.JustOperation
+import me.unidok.jjvm.util.appendObject
 import me.unidok.justcode.value.*
 
 class PluralOperator(
     @JvmField val type: Type,
     @JvmField val deepOperand: Operand,
     @JvmField val simpleOperand: Operand
-) : OperationWithResult {
+) : OperationWithResult() {
     enum class Type {
         ADD, SUB, MUL, IDIV, FDIV
     }
@@ -84,5 +86,12 @@ class PluralOperator(
         return variable
     }
 
-    override fun toString(): String = "PluralOperator(type=$type, deepOperand=$deepOperand, simpleOperand=$simpleOperand)"
+    override fun appendTo(builder: StringBuilder, indent: String) {
+        builder.appendObject(
+            indent,
+            "PluralOperator",
+            "deepOperand", deepOperand,
+            "simpleOperand", simpleOperand
+        )
+    }
 }

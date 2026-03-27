@@ -19,6 +19,6 @@ public final class Pair<A extends Primitive, B extends Primitive> extends Primit
     }
 
     public B getSecond() {
-        return Unsafe.cast(Unsafe.<ListPrimitive<?>>cast(this).get(0));
+        return Unsafe.cast(Unsafe.<ListPrimitive<?>>cast(this).get(1));
     }
 }

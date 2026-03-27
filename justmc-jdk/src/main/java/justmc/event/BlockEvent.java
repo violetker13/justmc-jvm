@@ -1,16 +1,16 @@
 package justmc.event;
 
 import justmc.Block;
-import justmc.GameValue;
 import justmc.Location;
 import justmc.Unsafe;
+import justmc.World;
 
 public interface BlockEvent {
     default Location getBlockLocation() {
-        return Unsafe.cast(GameValue.get("event_block_location"));
+        return Unsafe.cast(World.getValue("event_block_location"));
     }
 
     default Block getBlock() {
-        return Unsafe.cast(GameValue.get("event_block"));
+        return Unsafe.cast(World.getValue("event_block"));
     }
 }
