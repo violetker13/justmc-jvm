@@ -34,4 +34,6 @@ public final class Text extends Primitive {
         ));
         return Unsafe.cast(result);
     }
+
+    public native @NotNull Text plus(Primitive other);
 }

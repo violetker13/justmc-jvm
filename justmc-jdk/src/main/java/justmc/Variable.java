@@ -15,25 +15,25 @@ public final class Variable extends Primitive {
      * @param name Имя переменной
      * @return Сохранённая переменная с данным именем
      */
-    public static native Variable save(String name);
+    public static native Variable save(Primitive name);
 
     /**
      * @param name Имя переменной
      * @return Игровая переменная с данным именем
      */
-    public static native Variable game(String name);
+    public static native Variable game(Primitive name);
 
     /**
      * @param name Имя переменной
      * @return Локальная переменная с данным именем
      */
-    public static native Variable local(String name);
+    public static native Variable local(Primitive name);
 
     /**
      * @param name Имя переменной
      * @return Строчная переменная с данным именем
      */
-    public static native Variable line(String name);
+    public static native Variable line(Primitive name);
 
     /**
      * @return Строчная переменная со сгенерированным именем
@@ -45,10 +45,36 @@ public final class Variable extends Primitive {
      */
     public static native Variable result();
 
+    public static void purge(Primitive names) {
+        Unsafe.operation("set_variable_purge", MapPrimitive.of(
+                Pair.of("names", names)
+        ));
+    }
+
+    public native Text getName();
+
     public void setValue(Primitive value) {
         Unsafe.operation("set_variable_value", MapPrimitive.of(
                 Pair.of("variable", this),
                 Pair.of("value", value)
         ));
+    }
+
+    public void increment() {
+        Unsafe.operation("set_variable_increment", MapPrimitive.of(
+                Pair.of("variable", this)
+        ));
+    }
+
+    public void decrement() {
+        Unsafe.operation("set_variable_decrement", MapPrimitive.of(
+                Pair.of("variable", this)
+        ));
+    }
+
+    public boolean exists() {
+        return Conditional.of("if_variable_exists", MapPrimitive.of(
+                Pair.of("variable", this)
+        )).get();
     }
 }

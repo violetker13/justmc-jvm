@@ -1,5 +1,14 @@
 package me.unidok.jjvm.translator
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import me.unidok.jjvm.context.SourceClass
 import me.unidok.jjvm.context.SourceMethod
 import me.unidok.jjvm.context.TranslationContext
@@ -75,7 +84,7 @@ class JarTranslator(
                     ClassReader(jarFile.getInputStream(entry)).accept(classNode, ClassReader.SKIP_FRAMES)
 
                     val methods = HashMap<String, SourceMethod>()
-                    val clazz = SourceClass(this, classNode, methods)
+                    val clazz = SourceClass(this@JarTranslator, classNode, methods)
                     val className = clazz.name
 
                     if (className == "java/lang/Object") {
@@ -107,7 +116,6 @@ class JarTranslator(
             }
         }
 
-
         // Генерация промежуточного представления
         for (clazz in classes.values) {
             if (debug) Debugger.debugClass(clazz.node)
@@ -117,6 +125,31 @@ class JarTranslator(
                 if (debug) Debugger.debugIR(method)
             }
         }
+
+//        val jobs = ArrayList<Job>()
+//
+//        for (clazz in classes.values) {
+//            for (method in clazz.methods.values) {
+//                jobs.add(launch { method.translateBytecode() })
+//            }
+//        }
+//
+//        jobs.joinAll()
+//
+//        if (debug) {
+//            for (clazz in classes.values) {
+//                Debugger.debugClass(clazz.node)
+//                for (method in clazz.methods.values) {
+//                    Debugger.debugMethod(method.node)
+//                    Debugger.debugIR(method)
+//                }
+//            }
+//        }
+
+
+
+
+
 
         val handlers = ArrayList<Trigger>()
         val onWorldStart = ArrayList<JustOperation>()

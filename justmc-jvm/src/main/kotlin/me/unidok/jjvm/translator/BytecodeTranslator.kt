@@ -421,7 +421,7 @@ class BytecodeTranslator(
                                     isInit ||
                                     forceInline ||
                                     clazz.isAnnotated(Annotations.INLINE) ||
-                                    method.getLength() <= jar.config.maxInlineLength ||
+                                    //method.getLength() <= jar.config.maxInlineLength || // TODO getLength может быть не инициализировано
                                     NativeMethods.findMethod(methodName) != null
                                 ) {
                                     inlineMethodsStack.remove(method)

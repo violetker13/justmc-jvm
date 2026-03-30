@@ -16,6 +16,7 @@ dependencies {
     implementation("org.ow2.asm:asm-tree:9.9")
     implementation("org.ow2.asm:asm-util:9.9")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation(kotlin("stdlib"))
 }
 
