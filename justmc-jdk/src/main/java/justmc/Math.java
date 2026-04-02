@@ -13,9 +13,28 @@ public final class Math {
 
     private Math() {}
 
+    public static int min(int... numbers) {
+        var result = Variable.result();
+        Unsafe.operation("set_variable_min", MapPrimitive.of(
+                Pair.of("variable", result),
+                Pair.of("value", ListPrimitive.of(numbers))
+        ));
+        return Unsafe.asInt(result);
+    }
+
+    public static double min(double... numbers) {
+        var result = Variable.result();
+        Unsafe.operation("set_variable_min", MapPrimitive.of(
+                Pair.of("variable", result),
+                Pair.of("value", ListPrimitive.of(numbers))
+        ));
+        return Unsafe.asDouble(result);
+    }
+
     public static double pow(double x, double power) {
         var result = Variable.result();
         Unsafe.operation("set_variable_power", MapPrimitive.of(
+                Pair.of("variable", result),
                 Pair.of("number", NumberPrimitive.of(x)),
                 Pair.of("power", NumberPrimitive.of(power))
         ));
@@ -25,6 +44,7 @@ public final class Math {
     public static double square(double x) {
         var result = Variable.result();
         Unsafe.operation("set_variable_power", MapPrimitive.of(
+                Pair.of("variable", result),
                 Pair.of("number", NumberPrimitive.of(x))
         ));
         return Unsafe.asDouble(result);

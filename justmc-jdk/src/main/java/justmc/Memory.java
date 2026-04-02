@@ -3,8 +3,16 @@ package justmc;
 import justmc.annotation.EventHandler;
 import justmc.annotation.Inline;
 
+/**
+ * Стандартная реализация памяти (кучи), балансирующая между
+ * производительностью и максимальным размером.
+ * Максимальный размер - 19999 объектов, причём не важно,
+ * сколько полей имеет объект. То есть каждый из этих объектов
+ * может хранить по 20000 объектных полей и ещё столько же примитивных.
+ */
 public final class Memory {
     private static final int MIN_HEAP = 128;
+    private static final int MAX_HEAP = ListPrimitive.MAX_SIZE;
     private static int heapSize = MIN_HEAP;
     /**
      * Данные кучи, хранящие класс каждого объекта.
@@ -43,8 +51,13 @@ public final class Memory {
     private Memory() {}
 
     @Inline
-    public static Variable getFieldsVariable(int ptr) {
-        return Variable.game(NumberPrimitive.of(ptr));
+    public static Variable getObjectFieldsVariable(Primitive ptr) {
+        return Variable.game(Text.plain("o").plus(ptr));
+    }
+
+    @Inline
+    public static Variable getPrimitiveFieldsVariable(Primitive ptr) {
+        return Variable.game(Text.plain("p").plus(ptr));
     }
 
     @Inline
@@ -94,11 +107,16 @@ public final class Memory {
             gc(); // Пробуем очистить
             if (holding >= heapSize) {
                 // Если ничего не очистило, то расширяем кучу вдвое
-                ListPrimitive<NumberPrimitive> addHeap = ListPrimitive.ofNulls(heapSize);
+                if (heapSize >= MAX_HEAP) {
+                    Thread.fatalError(Text.plain("Out of memory"));
+                }
+                int newSize = Math.min(heapSize * 2, MAX_HEAP);
+                int add = newSize - heapSize;
+                ListPrimitive<NumberPrimitive> addHeap = ListPrimitive.ofNulls(add);
                 objs = objs.addAll(addHeap);
                 refs = refs.addAll(addHeap);
                 // Добавляем свободные указатели
-                Util.repeat(heapSize, () -> free = free.add(NumberPrimitive.of(++heapSize)));
+                Util.repeat(add, () -> free = free.add(NumberPrimitive.of(++heapSize)));
             }
         }
         int ptr = Unsafe.asInt(free.get(freeHead++));
@@ -110,7 +128,7 @@ public final class Memory {
     @EventHandler(id = "world_start")
     private static void cleaner() {
         while (true) {
-            Util.wait(173);
+            Thread.wait(93);
             gc();
         }
     }
@@ -119,9 +137,15 @@ public final class Memory {
         mark.forEach((ptr) -> {
             free.set(--freeHead, ptr);
             holding--;
-//            Unsafe.<ListPrimitive<NumberPrimitive>>cast(Variable.game(Text.plain("f").plus(objs.get(Unsafe.asInt(ptr))))).forEach((field) -> {
-//                getFieldsVariable(Unsafe.asInt(ptr)).;
-//            });
+            if (getObjectFieldsVariable(ptr).exists()) {
+                Unsafe.<ListPrimitive<NumberPrimitive>>cast(getObjectFieldsVariable(ptr)).forEach((field) -> {
+                    removeRef(Unsafe.asInt(field));
+                });
+            }
+            Variable.purge(ListPrimitive.of(
+                    getObjectFieldsVariable(ptr).getName(),
+                    getPrimitiveFieldsVariable(ptr).getName()
+            ));
         });
         mark = ListPrimitive.empty();
     }

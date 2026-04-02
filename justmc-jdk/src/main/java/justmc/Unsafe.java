@@ -2,6 +2,8 @@ package justmc;
 
 import justmc.annotation.Inline;
 
+import java.util.Iterator;
+
 @Inline
 public final class Unsafe {
     private Unsafe() {}
@@ -14,6 +16,8 @@ public final class Unsafe {
     public static native void operation(String id, Conditional conditional);
 
     public static native void operation(String id, Conditional conditional, Runnable block);
+
+    public static native <E extends Primitive> Iterator<E> iterator(String id, MapPrimitive<Text, Primitive> args);
 
     /**
      * Принимает значение как boolean

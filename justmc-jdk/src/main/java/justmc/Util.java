@@ -6,18 +6,6 @@ import java.util.function.Consumer;
 
 @Inline
 public final class Util {
-    public static void wait(int ticks) {
-        Unsafe.operation("control_wait", MapPrimitive.of(
-                Pair.of("duration", NumberPrimitive.of(ticks))
-        ));
-    }
-
-    public static void awaitCpu() {
-        while (World.getCpu() >= 60) {
-            wait(1);
-        }
-    }
-
     public static long measureNanoTime(Runnable block) {
         var result = Variable.result();
         Unsafe.operation("controller_measure_time", MapPrimitive.of(
