@@ -116,7 +116,9 @@ public final class Memory {
                 objs = objs.addAll(addHeap);
                 refs = refs.addAll(addHeap);
                 // Добавляем свободные указатели
-                Util.repeat(add, () -> free = free.add(NumberPrimitive.of(++heapSize)));
+                for (int i = 1; i <= add; i++) {
+                    free = free.add(NumberPrimitive.of(++heapSize));
+                }
             }
         }
         int ptr = Unsafe.asInt(free.get(freeHead++));
@@ -134,19 +136,25 @@ public final class Memory {
     }
 
     public static void gc() {
-        mark.forEach((ptr) -> {
+        ListPrimitive<NumberPrimitive> newMark = ListPrimitive.empty();
+        for (NumberPrimitive ptr : mark) {
             free.set(--freeHead, ptr);
             holding--;
             if (getObjectFieldsVariable(ptr).exists()) {
-                Unsafe.<ListPrimitive<NumberPrimitive>>cast(getObjectFieldsVariable(ptr)).forEach((field) -> {
+                for (NumberPrimitive field : Unsafe.<ListPrimitive<NumberPrimitive>>cast(getObjectFieldsVariable(ptr))) {
+                    int r = getRefs(Unsafe.asInt(ptr)) - 1;
+                    setRefs(Unsafe.asInt(ptr), r);
+                    if (r <= 0) {
+                        newMark.add(ptr);
+                    }
                     removeRef(Unsafe.asInt(field));
-                });
+                }
             }
             Variable.purge(ListPrimitive.of(
                     getObjectFieldsVariable(ptr).getName(),
                     getPrimitiveFieldsVariable(ptr).getName()
             ));
-        });
-        mark = ListPrimitive.empty();
+        }
+        mark = newMark;
     }
 }
