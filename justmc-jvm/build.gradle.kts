@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-group = "me.unidok"
+group = "me.violetker13"
 version = "2.0"
 
 repositories {
@@ -26,7 +26,7 @@ kotlin {
 
 tasks.jar {
     destinationDirectory.set(file("$rootDir/justmc-jvm-test/jjvm"))
-    manifest.attributes["Main-Class"] = "me.unidok.jjvm.Main"
+    manifest.attributes["Main-Class"] = "me.violetker13.jjvm.Main"
     doFirst {
         from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
     }
@@ -44,7 +44,7 @@ tasks.register<Exec>("publishReleaseJVM") {
     commandLine(
         "gh", "release", "create", tagName,
         jarFile.absolutePath,
-        "--repo", "unidok/justmc-jvm",
+        "--repo", "violetker13/justmc-jvm",
         "--title", tagName,
     )
 }

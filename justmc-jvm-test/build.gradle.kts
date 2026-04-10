@@ -5,7 +5,7 @@ plugins {
 
 apply("$rootDir/jjvm.gradle.kts")
 
-group = "me.unidok"
+group = "me.violetker13"
 version = "1.0-SNAPSHOT"
 
 repositories {

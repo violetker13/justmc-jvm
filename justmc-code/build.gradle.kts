@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-group = "me.unidok"
+group = "me.violetker13"
 version = "1.0"
 
 repositories {

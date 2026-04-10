@@ -3,7 +3,7 @@ plugins {
     kotlin("jvm")
 }
 
-group = "me.unidok"
+group = "me.violetker13"
 version = "2.0"
 
 repositories {
@@ -33,7 +33,7 @@ tasks.register<Exec>("publishReleaseJDK") {
     commandLine(
         "gh", "release", "create", tagName,
         jarFile.absolutePath,
-        "--repo", "unidok/justmc-jvm",
+        "--repo", "violetker13/justmc-jvm",
         "--title", tagName,
     )
 }

@@ -19,8 +19,8 @@ fun download(dir: String, url: String) {
 
 fun checkJars() {
     if (!checkJars) return
-    if (!file(jvmPath).exists()) download("jjvm", "https://github.com/unidok/justmc-jvm/releases/download/jvm-$jvmVersion/justmc-jvm-$jvmVersion.jar")
-    if (!file(jdkPath).exists()) download("libs", "https://github.com/unidok/justmc-jvm/releases/download/jdk-$jdkVersion/justmc-jdk-$jdkVersion.jar")
+    if (!file(jvmPath).exists()) download("jjvm", "https://github.com/violetker13/justmc-jvm/releases/download/jvm-$jvmVersion/justmc-jvm-$jvmVersion.jar")
+    if (!file(jdkPath).exists()) download("libs", "https://github.com/violetker13/justmc-jvm/releases/download/jdk-$jdkVersion/justmc-jdk-$jdkVersion.jar")
 }
 
 checkJars()

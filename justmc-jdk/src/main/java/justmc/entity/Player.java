@@ -11,12 +11,29 @@ public interface Player extends LivingEntity {
         ));
     }
 
+
     default void sendMessage(Primitive messages, TextMerging merging) {
         operation("player_send_message", MapPrimitive.of(
                 Pair.of("messages", messages),
                 Pair.of("merging", merging)
         ));
     }
+
+
+    default void sendActionBar(String message) {
+        operation("player_send_action_bar", MapPrimitive.of(
+                Pair.of("messages", Text.legacy(message))
+        ));
+    }
+
+
+    default void sendActionBar(Primitive messages, TextMerging merging) {
+        operation("player_send_action_bar", MapPrimitive.of(
+                Pair.of("messages", messages),
+                Pair.of("merging", merging)
+        ));
+    }
+
 
     default boolean isSneaking() {
         return Conditional.of("if_player_is_sneaking").get();
